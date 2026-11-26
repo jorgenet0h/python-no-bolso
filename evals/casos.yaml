@@ -8,3 +8,5 @@ casos:
   - {id: c6, tipo: ordenar_linhas, nivel: intermediario, tema: strings}
   - {id: c7, tipo: achar_bug, nivel: iniciante, tema: listas}
   - {id: c8, tipo: achar_bug, nivel: intermediario, tema: lacos}
+  - {id: c9, tipo: prever_saida, nivel: avancado, tema: dicionarios}
+  - {id: c10, tipo: achar_bug, nivel: avancado, tema: erros}

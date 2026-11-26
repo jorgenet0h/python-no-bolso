@@ -23,8 +23,8 @@ PREFIXO = "NAO-IMPLEMENTADO"
 HEADER_DEVICE = "X-Device-Id"
 
 TIPOS = ["prever_saida", "completar_lacuna", "ordenar_linhas", "achar_bug"]
-NIVEIS = ["iniciante", "intermediario"]
-TEMAS = ["variaveis", "condicionais", "lacos", "listas", "funcoes", "strings"]
+NIVEIS = ["iniciante", "intermediario", "avancado"]
+TEMAS = ["variaveis", "condicionais", "lacos", "listas", "funcoes", "strings", "dicionarios", "erros"]
 
 # Campos que entregariam a resposta ao cliente (REQ-004).
 CAMPOS_GABARITO = ["gabarito", "saida_esperada", "explicacao", "explicacoes_por_opcao"]
@@ -95,6 +95,8 @@ BASES = {
         "codigo": "n = 5\nsoma = 0\nfor i in range(n):\n    soma += i\nprint(soma)",
         "opcoes": ["n = 5", "soma = 0", "for i in range(n):", "soma += i"],
         "gabarito": [2], "saida_esperada": "15\n",
+        # A saída afirmada é a da versão corrigida (D-09).
+        "codigo_corrigido": "n = 5\nsoma = 0\nfor i in range(1, n + 1):\n    soma += i\nprint(soma)",
     },
 }
 

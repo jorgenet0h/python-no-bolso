@@ -1,13 +1,13 @@
 {
-  "$comment": "Schema PROPOSTO do exercício gerado (a spec não o fixa; ver docs/spec-gaps.md). Campos base = modelo de dados de docs/arquitetura.md; codigo_corrigido é exigido só em achar_bug.",
+  "$comment": "Schema do exercício gerado. Decisões em docs/decisoes-contrato.md (a spec não o fixa). Campos base = modelo de dados de docs/arquitetura.md; codigo_corrigido é exigido só em achar_bug.",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "additionalProperties": false,
   "required": ["tipo", "nivel", "tema", "enunciado", "codigo", "opcoes", "gabarito", "saida_esperada", "explicacao", "explicacoes_por_opcao"],
   "properties": {
     "tipo": {"enum": ["prever_saida", "completar_lacuna", "ordenar_linhas", "achar_bug"]},
-    "nivel": {"enum": ["iniciante", "intermediario"]},
-    "tema": {"enum": ["variaveis", "condicionais", "lacos", "listas", "funcoes", "strings"]},
+    "nivel": {"enum": ["iniciante", "intermediario", "avancado"]},
+    "tema": {"enum": ["variaveis", "condicionais", "lacos", "listas", "funcoes", "strings", "dicionarios", "erros"]},
     "enunciado": {"type": "string", "minLength": 5, "maxLength": 500},
     "codigo": {"type": "string", "maxLength": 2000},
     "codigo_corrigido": {"type": "string", "minLength": 1, "maxLength": 2000},

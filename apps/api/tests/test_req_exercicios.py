@@ -24,6 +24,18 @@ def test_req_001_quatro_tipos_de_exercicio_sao_oferecidos(client, device):
         assert resp.json()["tipo"] == tipo
 
 
+def test_req_002_todos_os_niveis_e_temas_sao_aceitos(client, device):
+    """D-01 e D-02: 3 níveis e 8 temas (inclui avancado, dicionarios e erros)."""
+    for nivel in NIVEIS:
+        semear_exercicio("REQ-002", nivel=nivel, tema="variaveis")
+    for tema in TEMAS:
+        semear_exercicio("REQ-002", nivel="iniciante", tema=tema)
+    for nivel in NIVEIS:
+        assert _pedir(client, "REQ-002", device, nivel=nivel).json()["nivel"] == nivel
+    for tema in TEMAS:
+        assert _pedir(client, "REQ-002", device, tema=tema).json()["tema"] == tema
+
+
 def test_req_002_exercicio_tem_nivel_e_tema_dos_enums(client, device):
     semear_exercicio("REQ-002", nivel="intermediario", tema="listas")
     corpo = _pedir(client, "REQ-002", device, nivel="intermediario", tema="listas")
