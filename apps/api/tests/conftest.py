@@ -1,4 +1,5 @@
 import os
+import sys
 
 # Antes de importar a app: CORS lê a origem configurada (.env.example).
 os.environ.setdefault("CORS_ORIGIN", "http://localhost:3000")
@@ -49,3 +50,14 @@ def _isolamento():
     except (ModuleNotFoundError, AttributeError):
         pass
     yield
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """D-23: no CI em Linux nenhum teste pode ser pulado. Os de memória e fork bomb só rodam em
+    Linux; se alguém os pular lá (por exemplo, por rlimit ausente), o CI tem de falhar, não passar."""
+    outcome = yield
+    rep = outcome.get_result()
+    if rep.skipped and os.environ.get("CI") and sys.platform == "linux":
+        rep.outcome = "failed"
+        rep.longrepr = f"SKIP PROIBIDO NO CI (Linux): {item.nodeid}: {rep.longrepr}"

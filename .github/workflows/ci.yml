@@ -23,7 +23,7 @@ jobs:
           cache-dependency-path: apps/api/requirements-dev.txt
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
-      - run: pytest
+      - run: pytest -rs
 
   # Evals determinísticos (REQ-043): mock, sem rede e sem cota. Os evals com modelos reais
   # gastam cota e rodam só sob demanda (evals/README.md).
