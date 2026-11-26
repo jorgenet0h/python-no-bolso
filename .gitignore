@@ -9,3 +9,8 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 dist/
+
+# Playwright
+test-results/
+playwright-report/
+apps/web/e2e-results.xml
