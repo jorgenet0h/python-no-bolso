@@ -1,10 +1,10 @@
-"""REQ-031 a REQ-035 e REQ-044: erros do back-end e health."""
+"""REQ-031 a REQ-035: erros do back-end. O REQ-044 (health) está em test_health.py."""
 
 import logging
 
 import pytest
 
-from tests.contrato import atributo, carregar, chamar, nao_implementado
+from tests.contrato import HEALTH_DEGRADADO, atributo, banco_fora, chamar, nao_implementado
 
 SEGREDO_INTERNO = "segredo-interno-do-teste-9f3a"
 CODIGOS_DE_DOMINIO = {"SEM_EXERCICIO", "RESPOSTA_INVALIDA", "DEVICE_INVALIDO", "INDISPONIVEL"}
@@ -84,30 +84,11 @@ def test_req_034_erro_imprevisto_vira_erro_interno_com_id_de_correlacao(
 
 
 def test_req_035_banco_indisponivel(client, app, device):
-    db = carregar("app.db", "REQ-035")
-    if not hasattr(db, "get_session"):
-        nao_implementado("REQ-035", "app.db.get_session (dependência de sessão) não existe")
-
-    def sem_banco():
-        raise ConnectionError("banco fora do ar")
-        yield  # pragma: no cover
-
-    app.dependency_overrides[db.get_session] = sem_banco
-    try:
+    with banco_fora(app, "REQ-035"):
         saude = client.get("/health")
-        assert saude.status_code >= 500
+        assert saude.status_code == 503
+        assert saude.json() == HEALTH_DEGRADADO
         for rota in ["/exercicios", "/progresso"]:
             resp = chamar(client, "GET", rota, "REQ-035", device=device)
             assert resp.json()["code"] == "INDISPONIVEL"
             assert resp.status_code == 503
-    finally:
-        app.dependency_overrides.pop(db.get_session, None)
-
-
-def test_req_044_health_expoe_status_da_api_e_do_banco(client):
-    resp = client.get("/health")
-    assert resp.status_code == 200
-    corpo = resp.json()
-    assert "db" in corpo, "GET /health precisa informar o banco, não só {'status': 'ok'}"
-    assert corpo.get("api", corpo.get("status")) == "ok"
-    assert corpo["db"] == "ok"

@@ -15,7 +15,7 @@ A execução final tem **0 falhas B**. Estas foram achadas pelo caminho e corrig
 - `test_req_019` falhava em `is_file()` e `test_req_034` em `JSONDecodeError`: a causa real (módulo ou handler ausente) ficava escondida; agora dizem `NAO-IMPLEMENTADO`.
 - Vitest: `import()` estático de módulo ausente derrubava a coleta (trocado por `import.meta.glob`); o `localStorage` experimental do Node 26 escondia o do jsdom (`tests/setup.ts`).
 - Playwright: `TypeError` do matcher quando não havia `device_id`; agora a mensagem é de asserção.
-- Achados ao rodar os testes contra uma implementação de referência descartável (150 de 152 passam; as 2 falhas são o REQ-043 e o `test_health.py`, conflitos de spec): caso `recursao-e-loop` do sandbox morria com `RecursionError` e nunca dava timeout; falso positivo do REQ-039 no canário de URL de banco do próprio teste; **falta de isolamento de banco e de rate limit entre testes** (fixture `_isolamento` no `conftest.py`).
+- Achados ao rodar os testes contra uma implementação de referência descartável (150 de 152 passavam; as 2 falhas eram conflitos de spec, já resolvidos: REQ-043 com o job de evals no `ci.yml` e o `test_health.py` antigo com a DISP-001): caso `recursao-e-loop` do sandbox morria com `RecursionError` e nunca dava timeout; falso positivo do REQ-039 no canário de URL de banco do próprio teste; **falta de isolamento de banco e de rate limit entre testes** (fixture `_isolamento` no `conftest.py`).
 - Lint: o ruff 0.17 do ambiente tem regras padrão que o hook de pre-commit aplica; testes ajustados.
 
 Limite desta verificação: a referência foi escrita por um agente com acesso aos testes, então prova que eles são **satisfazíveis**, não que a interpretação da spec é a certa (ver `spec-gaps.md`). Os testes Linux-only de memória e fork bomb nunca rodaram: no Windows ficam `skipped` só depois de a implementação existir, e hoje falham antes, por `app.sandbox` ausente. Dos dois e2e, só o primeiro passo de cada foi exercitado (o resto depende do front).
@@ -24,9 +24,9 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 
 | Resultado | Casos |
 |---|---|
-| (A) requisito não implementado | 160 |
+| (A) requisito não implementado | 161 |
 | (B) erro do próprio teste | 0 |
-| passa hoje | 50 |
+| passa hoje | 49 |
 | pulado (só Linux) | 0 |
 
 ## API (pytest)
@@ -39,7 +39,8 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 | `test_api_payloads_malformados` | `test_req_002_filtros_malformados_em_exercicios` | 6 | A | rota GET /exercicios não existe (HTTP 404) |
 | `test_api_payloads_malformados` | `test_req_018_device_header_hostil` | 3 | A | rota GET /progresso não existe (HTTP 404) |
 | `test_api_payloads_malformados` | `test_req_033_metodo_e_rota_inexistentes_seguem_o_formato_de_erro` | 1 | A | NAO-IMPLEMENTADO [REQ] sem handler global: o framework responde {'detail'} em vez de {code, message} |
-| `test_health` | `test_health_responde_ok` | 1 | passa | nada a implementar (ou comportamento já existente) |
+| `test_health` | `test_req_044_health_banco_acessivel_responde_200_ok` | 1 | A | NAO-IMPLEMENTADO [REQ] GET /health devolve só {'status': 'ok'}, sem o status do banco |
+| `test_health` | `test_req_044_health_banco_inacessivel_responde_503_degraded` | 1 | A | módulo 'app.db' não existe |
 | `test_prompt_injection` | `test_req_038_texto_hostil_na_resposta_do_usuario_nao_chega_a_nenhum_agente` | 7 | A | módulo 'app.db' não existe |
 | `test_prompt_injection` | `test_req_038_enum_hostil_no_gerador_nao_chama_modelo_nem_tool` | 7 | A | módulo 'app.agent.loop' não existe |
 | `test_prompt_injection` | `test_req_038_conteudo_hostil_vindo_do_modelo_nao_muda_tools_nem_saida_validada` | 1 | A | módulo 'app.agent.loop' não existe |
@@ -63,7 +64,6 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 | `test_req_erros` | `test_req_033_nao_vaza_stack_trace_prompt_ou_detalhe_interno` | 1 | A | rota POST /respostas não existe (HTTP 404) |
 | `test_req_erros` | `test_req_034_erro_imprevisto_vira_erro_interno_com_id_de_correlacao` | 1 | A | sem handler global: 500 sem corpo {code, message} |
 | `test_req_erros` | `test_req_035_banco_indisponivel` | 1 | A | módulo 'app.db' não existe |
-| `test_req_erros` | `test_req_044_health_expoe_status_da_api_e_do_banco` | 1 | A | NAO-IMPLEMENTADO [REQ] GET /health devolve só {'status': 'ok'}, sem o status do banco |
 | `test_req_exercicios` | `test_req_001_quatro_tipos_de_exercicio_sao_oferecidos` | 1 | A | módulo 'app.db' não existe |
 | `test_req_exercicios` | `test_req_002_exercicio_tem_nivel_e_tema_dos_enums` | 1 | A | módulo 'app.db' não existe |
 | `test_req_exercicios` | `test_req_003_devolve_validado_priorizando_nao_resolvidos` | 1 | A | módulo 'app.db' não existe |

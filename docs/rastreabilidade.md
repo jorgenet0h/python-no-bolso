@@ -50,7 +50,7 @@ requisito está no nome (`test_req_012_...`). Camadas: **api** (pytest), **web**
 | REQ-041 | O sistema deve restringir CORS à origem do front configurada. | `api` cors_restrito_a_origem_do_front | 1×A |  |
 | REQ-042 | O repositório deve ter evals que rodem o mesmo conjunto de casos em 2 ou mais modelos e... | `api` evals_rodam_o_mesmo_conjunto_em_2_ou_mais_modelos<br>`evals` evals/tests/metricas.py (bateria, executor, métricas) (46) | 47×pass | Também coberto por `evals/tests/test_metricas.py` |
 | REQ-043 | O CI deve rodar lint, testes e evals determinísticos a cada PR. | `api` ci_roda_lint_testes_e_evals_deterministicos | 1×pass | Conflito com a instrução de não rodar evals no CI (GAP-043) |
-| REQ-044 | O sistema deve expor `GET /health` com o status da API e do banco. | `api` health_expoe_status_da_api_e_do_banco | 1×A | Conflita com `test_health.py` (DISP-001) |
+| REQ-044 | O sistema deve expor `GET /health` com o status da API e do banco. | `api` health_banco_acessivel_responde_200_ok<br>`api` health_banco_inacessivel_responde_503_degraded | 2×A | Formato decidido em DISP-001; redação da SPEC proposta em spec-gaps seção 4 |
 
 ## Requisitos sem teste
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 import importlib
 import os
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 
 import pytest
@@ -211,3 +212,27 @@ def resposta_tool(codigo: str = "print(5)") -> dict:
 
 def ambiente_de_teste_ok() -> bool:
     return bool(os.environ.get("TEST_DATABASE_URL") or os.environ.get("DATABASE_URL"))
+
+
+# ---------------------------------------------------------------- GET /health (REQ-044)
+# Formato decidido em DISP-001: a spec vence; REQ-044 pede status da API e do banco.
+HEALTH_OK = {"status": "ok", "db": "ok"}
+HEALTH_DEGRADADO = {"status": "degraded", "db": "erro"}
+
+
+@contextmanager
+def banco_fora(app, req: str):
+    """Simula banco inacessível sobrescrevendo a dependência app.db.get_session."""
+    db = carregar("app.db", req)
+    if not hasattr(db, "get_session"):
+        nao_implementado(req, "app.db.get_session (dependência de sessão) não existe")
+
+    def sem_banco():
+        raise ConnectionError("banco fora do ar")
+        yield  # pragma: no cover
+
+    app.dependency_overrides[db.get_session] = sem_banco
+    try:
+        yield
+    finally:
+        app.dependency_overrides.pop(db.get_session, None)
