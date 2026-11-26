@@ -15,8 +15,9 @@ from tests.contrato import (
 )
 
 SEGREDO_INTERNO = "segredo-interno-do-teste-9f3a"
-CODIGOS_DE_DOMINIO = {"SEM_EXERCICIO", "RESPOSTA_INVALIDA", "FILTRO_INVALIDO", "ENUM_INVALIDO",
-                      "DEVICE_INVALIDO", "LIMITE_EXCEDIDO", "INDISPONIVEL"}
+CODIGOS_DE_DOMINIO = {"SEM_EXERCICIO", "EXERCICIO_NAO_ENCONTRADO", "RESPOSTA_INVALIDA",
+                      "FILTRO_INVALIDO", "ENUM_INVALIDO", "DEVICE_INVALIDO", "LIMITE_EXCEDIDO",
+                      "INDISPONIVEL"}
 
 
 def _todas_subclasses(cls):

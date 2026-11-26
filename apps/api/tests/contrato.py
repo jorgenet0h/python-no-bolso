@@ -21,6 +21,8 @@ import pytest
 
 PREFIXO = "NAO-IMPLEMENTADO"
 HEADER_DEVICE = "X-Device-Id"
+ROTA_EXPLICAR = "/explicacoes"  # REQ-045 (proposto): "explicar meu erro"
+MAX_INDENT = 3  # níveis de indentação aceitos em ordenar_linhas (0 a 3)
 
 TIPOS = ["prever_saida", "completar_lacuna", "ordenar_linhas", "achar_bug"]
 NIVEIS = ["iniciante", "intermediario", "avancado"]
@@ -29,6 +31,7 @@ TEMAS = ["variaveis", "condicionais", "lacos", "listas", "funcoes", "strings", "
 # Código e status HTTP de cada erro (D-14). Toda resposta de erro é {"code", "message"}.
 ERROS = {
     "SEM_EXERCICIO": 404,
+    "EXERCICIO_NAO_ENCONTRADO": 404,
     "RESPOSTA_INVALIDA": 422,
     "FILTRO_INVALIDO": 422,
     "ENUM_INVALIDO": 422,
@@ -64,6 +67,11 @@ def atributo(modulo: str, nome: str, req: str):
     if not hasattr(mod, nome):
         nao_implementado(req, f"'{modulo}.{nome}' não existe")
     return getattr(mod, nome)
+
+
+def programa_ordenado(ex: dict, pares: list | None = None) -> str:
+    """Programa montado a partir de pares [índice, nível] (por padrão, o gabarito)."""
+    return "\n".join("    " * nivel + ex["opcoes"][i] for i, nivel in (pares or ex["gabarito"]))
 
 
 def novo_device() -> str:
@@ -109,9 +117,13 @@ BASES = {
         "opcoes": ["5", "6", "7", "8"], "gabarito": [1], "saida_esperada": "10\n",
     },
     "ordenar_linhas": {
-        "enunciado": "Ordene as linhas para imprimir 3.",
+        # `opcoes` guarda as linhas SEM indentação, embaralhadas. `gabarito` é a ordem correta como
+        # pares [índice, nível de indentação] (D-06): 0 = sem indentar, 1 = um bloco (4 espaços).
+        "enunciado": "Ordene e indente as linhas para imprimir 3.",
         "codigo": "",
-        "opcoes": ["print(a + b)", "a = 1", "b = 2"], "gabarito": [1, 2, 0], "saida_esperada": "3\n",
+        "opcoes": ["print(total)", "for i in range(3):", "total += i", "total = 0"],
+        "gabarito": [[3, 0], [1, 0], [2, 1], [0, 0]],
+        "saida_esperada": "3\n",
     },
     "achar_bug": {
         "enunciado": "Qual linha tem o bug?",
@@ -151,6 +163,26 @@ def semear_exercicio(req: str, **campos) -> dict:
         sessao.add(models.Exercicio(id=uuid.UUID(ex_id), status="validado", **ex))
         sessao.commit()
     return {**ex, "id": ex_id}
+
+
+def semear_tentativa(req: str, device: str, exercicio_id: str, dias_atras: int = 0,
+                     correta: bool = True) -> None:
+    """Grava uma tentativa ao meio-dia (America/Sao_Paulo) de `dias_atras` dias atrás, para
+    testar a sequência de dias sem depender da hora em que o teste roda (D-12)."""
+    from datetime import UTC, datetime, timedelta
+    from zoneinfo import ZoneInfo
+
+    db = carregar("app.db", req)
+    models = carregar("app.models", req)
+    if not hasattr(models, "Tentativa"):
+        nao_implementado(req, "app.models.Tentativa não existe")
+    meio_dia = datetime.now(ZoneInfo("America/Sao_Paulo")).replace(
+        hour=12, minute=0, second=0, microsecond=0) - timedelta(days=dias_atras)
+    with db.SessionLocal() as sessao:
+        sessao.add(models.Tentativa(
+            device_id=device, exercicio_id=uuid.UUID(exercicio_id), resposta=[0],
+            correta=correta, criado_em=meio_dia.astimezone(UTC)))
+        sessao.commit()
 
 
 def contar(modelo: str, req: str, **filtros) -> int:

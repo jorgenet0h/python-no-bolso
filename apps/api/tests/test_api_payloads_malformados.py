@@ -35,13 +35,24 @@ def test_req_032_corpo_malformado_em_respostas_nunca_vira_5xx(client, device, no
 
 
 @pytest.mark.parametrize("exercicio_id", [
-    "", "1", "nao-e-uuid", "00000000-0000-0000-0000-000000000000", "' OR '1'='1", None, 7,
-    ["a"], {"$ne": None}, "A" * 10_000,
+    "", "1", "nao-e-uuid", "' OR '1'='1", None, 7, ["a"], {"$ne": None}, "A" * 10_000,
 ])
-def test_req_010_exercicio_id_malformado_ou_inexistente(client, device, exercicio_id):
+def test_req_010_exercicio_id_malformado_e_resposta_invalida(client, device, exercicio_id):
     resp = chamar(client, "POST", "/respostas", "REQ-010", device=device,
                   json={"exercicio_id": exercicio_id, "resposta": [0]})
-    checar_erro(resp, "RESPOSTA_INVALIDA")
+    checar_erro(resp, "RESPOSTA_INVALIDA")  # D-14: corpo malformado continua RESPOSTA_INVALIDA
+    assert contar("Tentativa", "REQ-010", device_id=device) == 0
+
+
+@pytest.mark.parametrize("exercicio_id", [
+    "00000000-0000-0000-0000-000000000000", str(uuid.uuid4()),
+], ids=["uuid-nulo", "uuid-aleatorio"])
+def test_req_010_exercicio_inexistente_devolve_404_sem_registrar(client, device, exercicio_id):
+    """D-14 (alterada pelo usuário): id bem formado que não existe é 404 EXERCICIO_NAO_ENCONTRADO."""
+    semear_exercicio("REQ-010")  # há exercícios, mas não este
+    resp = chamar(client, "POST", "/respostas", "REQ-010", device=device,
+                  json={"exercicio_id": exercicio_id, "resposta": [0]})
+    checar_erro(resp, "EXERCICIO_NAO_ENCONTRADO")
     assert contar("Tentativa", "REQ-010", device_id=device) == 0
 
 
