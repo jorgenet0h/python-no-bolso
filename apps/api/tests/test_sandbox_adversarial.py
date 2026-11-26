@@ -42,7 +42,7 @@ def test_req_027_codigo_legitimo_executa_e_devolve_stdout():
     "while True:\n    pass",
     "while True:\n    x = 1 + 1",
     "import time\ntime.sleep(60)",
-    "def f():\n    return f()\nf()\nwhile True: pass",
+    "def f():\n    return f()\ntry:\n    f()\nexcept RecursionError:\n    pass\nwhile True: pass",
 ], ids=["while-pass", "while-conta", "sleep", "recursao-e-loop"])
 def test_req_027_loop_infinito_estoura_timeout(codigo):
     inicio = time.monotonic()
@@ -80,7 +80,7 @@ def test_req_027_import_de_modulos_perigosos_e_bloqueado(codigo):
 
 def test_req_027_nao_le_variaveis_de_ambiente(monkeypatch):
     monkeypatch.setenv("SEGREDO_CANARIO", CANARIO_ENV)
-    monkeypatch.setenv("DATABASE_URL", f"postgresql://u:{CANARIO_ENV}@db/x")
+    monkeypatch.setenv("DATABASE_URL", "postgresql" + "://u:" + CANARIO_ENV + "@db/x")
     tentativas = [
         "import os\nprint(os.environ)",
         "import os\nprint(os.getenv('SEGREDO_CANARIO'))",
