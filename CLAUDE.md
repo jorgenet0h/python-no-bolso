@@ -35,6 +35,7 @@ apps/web, apps/api, docs/ (SPEC, arquitetura, reviews, disputas, requisitos),
 - api setup: `cd apps/api && python -m venv .venv && .venv/Scripts/python -m pip install -r requirements-dev.txt`
 - api dev: `cd apps/api && .venv/Scripts/python -m uvicorn app.main:app --reload`
 - api test/lint: `cd apps/api && .venv/Scripts/python -m pytest` e `.venv/Scripts/python -m ruff check .`
+- hooks: `npm install` na raiz ativa o Husky; o pre-commit roda lint do web e ruff da api. CI em `.github/workflows/ci.yml`
 - evals, migrate: a preencher nos PRs 13 e 5
 
 ## Pronto quando (disciplina)
