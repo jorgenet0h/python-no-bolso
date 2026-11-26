@@ -30,7 +30,12 @@ apps/web, apps/api, docs/ (SPEC, arquitetura, reviews, disputas, requisitos),
 .claude/commands (prompts das sessões)
 
 ## Comandos
-(preencher após o scaffold: dev, test, lint, evals, migrate)
+- web dev: `npm install` na raiz, depois `npm run dev:web` (http://localhost:3000)
+- web build/lint: `npm run build:web`, `npm run lint:web`
+- api setup: `cd apps/api && python -m venv .venv && .venv/Scripts/python -m pip install -r requirements-dev.txt`
+- api dev: `cd apps/api && .venv/Scripts/python -m uvicorn app.main:app --reload`
+- api test/lint: `cd apps/api && .venv/Scripts/python -m pytest` e `.venv/Scripts/python -m ruff check .`
+- evals, migrate: a preencher nos PRs 13 e 5
 
 ## Pronto quando (disciplina)
 front + back + Postgres em produção; loop do agente explícito; evals rodando
