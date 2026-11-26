@@ -15,7 +15,8 @@ A execução final tem **0 falhas B**. Estas foram achadas pelo caminho e corrig
 - `test_req_019` falhava em `is_file()` e `test_req_034` em `JSONDecodeError`: a causa real (módulo ou handler ausente) ficava escondida; agora dizem `NAO-IMPLEMENTADO`.
 - Vitest: `import()` estático de módulo ausente derrubava a coleta (trocado por `import.meta.glob`); o `localStorage` experimental do Node 26 escondia o do jsdom (`tests/setup.ts`).
 - Playwright: `TypeError` do matcher quando não havia `device_id`; agora a mensagem é de asserção.
-- Achados ao rodar os testes contra uma implementação de referência descartável (150 de 152 passavam; as 2 falhas eram conflitos de spec, já resolvidos: REQ-043 com o job de evals no `ci.yml` e o `test_health.py` antigo com a DISP-001): caso `recursao-e-loop` do sandbox morria com `RecursionError` e nunca dava timeout; falso positivo do REQ-039 no canário de URL de banco do próprio teste; **falta de isolamento de banco e de rate limit entre testes** (fixture `_isolamento` no `conftest.py`).
+- Achados ao rodar os testes contra uma implementação de referência descartável (150 de 152 passavam; as 2 falhas eram conflitos de spec, já resolvidos: REQ-043 com o job de evals no `ci.yml` e o `test_health.py` antigo com a DISP-001; depois dos vetos, 191 passam e 2 ficam pulados no Windows): caso `recursao-e-loop` do sandbox morria com `RecursionError` e nunca dava timeout; falso positivo do REQ-039 no canário de URL de banco do próprio teste; **falta de isolamento de banco e de rate limit entre testes** (fixture `_isolamento` no `conftest.py`).
+- Rodada dos vetos: o caso `campo-extra-hostil` de `test_req_032` usava um UUID bem formado que não existe, que passou a ser 404 (D-14) e não `RESPOSTA_INVALIDA`; o fixture `agente` do REQ-045 falhava na montagem (aparecia como ERROR, parecendo erro do teste) e virou função chamada dentro do teste; a asserção de ambiguidade de `test_d_indentacao_alternativa` contava 2 combinações quando são 3.
 - Lint: o ruff 0.17 do ambiente tem regras padrão que o hook de pre-commit aplica; testes ajustados.
 
 Limite desta verificação: a referência foi escrita por um agente com acesso aos testes, então prova que eles são **satisfazíveis**, não que a interpretação da spec é a certa (ver `spec-gaps.md`). Os testes Linux-only de memória e fork bomb nunca rodaram: no Windows ficam `skipped` só depois de a implementação existir, e hoje falham antes, por `app.sandbox` ausente. Dos dois e2e, só o primeiro passo de cada foi exercitado (o resto depende do front).
@@ -24,17 +25,18 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 
 | Resultado | Casos |
 |---|---|
-| (A) requisito não implementado | 162 |
+| (A) requisito não implementado | 200 |
 | (B) erro do próprio teste | 0 |
-| passa hoje | 49 |
+| passa hoje | 53 |
 | pulado (só Linux) | 0 |
 
 ## API (pytest)
 
 | Arquivo | Teste | Casos | Cat. | Motivo |
 |---|---|---|---|---|
-| `test_api_payloads_malformados` | `test_req_032_corpo_malformado_em_respostas_nunca_vira_5xx` | 11 | A | rota POST /respostas não existe (HTTP 404) |
-| `test_api_payloads_malformados` | `test_req_010_exercicio_id_malformado_ou_inexistente` | 10 | A | rota POST /respostas não existe (HTTP 404) |
+| `test_api_payloads_malformados` | `test_req_032_corpo_malformado_em_respostas_nunca_vira_5xx` | 10 | A | rota POST /respostas não existe (HTTP 404) |
+| `test_api_payloads_malformados` | `test_req_010_exercicio_id_malformado_e_resposta_invalida` | 9 | A | rota POST /respostas não existe (HTTP 404) |
+| `test_api_payloads_malformados` | `test_req_010_exercicio_inexistente_devolve_404_sem_registrar` | 2 | A | módulo 'app.db' não existe |
 | `test_api_payloads_malformados` | `test_req_008_cliente_nao_consegue_forcar_correta_nem_gabarito` | 1 | A | módulo 'app.db' não existe |
 | `test_api_payloads_malformados` | `test_req_002_filtros_malformados_em_exercicios` | 6 | A | rota GET /exercicios não existe (HTTP 404) |
 | `test_api_payloads_malformados` | `test_req_018_device_header_hostil` | 3 | A | rota GET /progresso não existe (HTTP 404) |
@@ -45,6 +47,12 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 | `test_prompt_injection` | `test_req_038_enum_hostil_no_gerador_nao_chama_modelo_nem_tool` | 7 | A | módulo 'app.agent.loop' não existe |
 | `test_prompt_injection` | `test_req_038_conteudo_hostil_vindo_do_modelo_nao_muda_tools_nem_saida_validada` | 1 | A | módulo 'app.agent.loop' não existe |
 | `test_prompt_injection` | `test_req_038_explicador_ignora_instrucao_embutida_no_enunciado_armazenado` | 1 | A | módulo 'app.agent.explicador' não existe |
+| `test_req_045_explicar_erro` | `test_req_045_agente_explica_o_raciocinio_equivocado` | 1 | A | módulo 'app.agent.explicador' não existe |
+| `test_req_045_explicar_erro` | `test_req_045_falha_do_agente_volta_a_explicacao_armazenada` | 1 | A | módulo 'app.db' não existe |
+| `test_req_045_explicar_erro` | `test_req_045_agente_recebe_exercicio_e_resposta_numerica_e_nao_tem_tool` | 1 | A | módulo 'app.agent.explicador' não existe |
+| `test_req_045_explicar_erro` | `test_req_045_texto_livre_e_resposta_invalida_nao_chegam_ao_agente` | 9 | A | módulo 'app.agent.explicador' não existe |
+| `test_req_045_explicar_erro` | `test_req_045_exercicio_inexistente_devolve_404` | 1 | A | módulo 'app.agent.explicador' não existe |
+| `test_req_045_explicar_erro` | `test_req_045_resposta_correta_nao_chama_o_agente` | 1 | A | módulo 'app.agent.explicador' não existe |
 | `test_req_agente` | `test_req_019_loop_explicito_com_tools_modelo_e_limite_de_passos` | 1 | A | apps/api/app/agent/loop.py não existe |
 | `test_req_agente` | `test_req_020_log_estruturado_por_passo` | 1 | A | módulo 'app.agent.loop' não existe |
 | `test_req_agente` | `test_req_021_gerador_recebe_apenas_valores_de_enum` | 4 | A | módulo 'app.errors' não existe |
@@ -70,10 +78,16 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 | `test_req_exercicios` | `test_req_003_devolve_validado_priorizando_nao_resolvidos` | 1 | A | módulo 'app.db' não existe |
 | `test_req_exercicios` | `test_req_004_resposta_nao_inclui_gabarito` | 1 | A | módulo 'app.db' não existe |
 | `test_req_exercicios` | `test_req_006_sem_exercicio_devolve_erro_com_sugestao` | 1 | A | módulo 'app.db' não existe |
+| `test_req_ordenar_linhas` | `test_req_007_ordenar_linhas_confere_ordem_e_indentacao` | 1 | A | módulo 'app.db' não existe |
+| `test_req_ordenar_linhas` | `test_req_008_ordenar_linhas_exige_pares_indice_e_indentacao` | 12 | A | módulo 'app.db' não existe |
+| `test_req_ordenar_linhas` | `test_req_008_pares_so_valem_para_ordenar_linhas` | 1 | A | módulo 'app.db' não existe |
 | `test_req_progresso` | `test_req_015_tentativas_ligadas_ao_device_sem_cadastro` | 1 | A | módulo 'app.db' não existe |
 | `test_req_progresso` | `test_req_016_progresso_mostra_acertos_taxa_por_tipo_e_sequencia` | 1 | A | módulo 'app.db' não existe |
 | `test_req_progresso` | `test_req_018_device_id_invalido_responde_device_invalido` | 8 | A | rota GET /progresso não existe (HTTP 404) |
 | `test_req_progresso` | `test_req_018_device_id_ausente_tambem_e_invalido` | 1 | A | rota GET /progresso não existe (HTTP 404) |
+| `test_req_progresso` | `test_req_016_praticou_ontem_mantem_a_sequencia` | 1 | A | módulo 'app.db' não existe |
+| `test_req_progresso` | `test_req_016_pulou_um_dia_zera_a_sequencia` | 1 | A | módulo 'app.db' não existe |
+| `test_req_progresso` | `test_req_016_sequencia_conta_dias_distintos_e_ignora_lacunas_antigas` | 1 | A | módulo 'app.db' não existe |
 | `test_req_qualidade` | `test_req_042_evals_rodam_o_mesmo_conjunto_em_2_ou_mais_modelos` | 1 | passa | nada a implementar (ou comportamento já existente) |
 | `test_req_qualidade` | `test_req_043_ci_roda_lint_testes_e_evals_deterministicos` | 1 | passa | nada a implementar (ou comportamento já existente) |
 | `test_req_seguranca` | `test_req_036_texto_do_usuario_e_dado_nunca_instrucao` | 1 | A | módulo 'app.db' não existe |
@@ -85,9 +99,10 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 | `test_req_validacao` | `test_req_026_saida_real_diferente_da_afirmada_rejeita` | 1 | A | módulo 'app.validador' não existe |
 | `test_req_validacao` | `test_req_026_achar_bug_com_bug_e_correcao_iguais_rejeita` | 1 | A | módulo 'app.validador' não existe |
 | `test_req_validacao` | `test_req_026_ordenar_linhas_sem_permutacao_errada_distinguivel_rejeita` | 1 | A | módulo 'app.validador' não existe |
+| `test_req_validacao` | `test_req_026_ordenar_linhas_com_indentacao_alternativa_valida_rejeita` | 1 | A | módulo 'app.validador' não existe |
 | `test_req_validacao` | `test_req_028_validacao_aprovada_salva_com_status_validado` | 1 | A | módulo 'app.agent.loop' não existe |
 | `test_req_validacao` | `test_req_029_validacao_rejeitada_descarta_e_registra_motivo` | 1 | A | módulo 'app.agent.loop' não existe |
-| `test_req_validacao` | `test_req_030_schema_invalido_rejeitado_antes_de_executar_codigo` | 16 | A | módulo 'app.validador' não existe |
+| `test_req_validacao` | `test_req_030_schema_invalido_rejeitado_antes_de_executar_codigo` | 22 | A | módulo 'app.validador' não existe |
 | `test_sandbox_adversarial` | `test_req_027_codigo_legitimo_executa_e_devolve_stdout` | 1 | A | módulo 'app.sandbox' não existe |
 | `test_sandbox_adversarial` | `test_req_027_loop_infinito_estoura_timeout` | 4 | A | módulo 'app.sandbox' não existe |
 | `test_sandbox_adversarial` | `test_req_027_saida_gigante_e_truncada` | 1 | A | módulo 'app.sandbox' não existe |
@@ -144,6 +159,10 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 | `test_metricas` | `test_d_ordem_unica_passa` | 1 | passa | nada a implementar (ou comportamento já existente) |
 | `test_metricas` | `test_d_ordem_ambigua_reprova` | 1 | passa | nada a implementar (ou comportamento já existente) |
 | `test_metricas` | `test_d_nenhuma_ordem_valida_reprova` | 1 | passa | nada a implementar (ou comportamento já existente) |
+| `test_metricas` | `test_d_indentacao_alternativa_tambem_valida_reprova` | 1 | passa | nada a implementar (ou comportamento já existente) |
+| `test_metricas` | `test_d_corpo_do_laco_exige_indentacao_para_ser_unica` | 1 | passa | nada a implementar (ou comportamento já existente) |
+| `test_metricas` | `test_combinacoes_podadas_pela_gramatica` | 1 | passa | nada a implementar (ou comportamento já existente) |
+| `test_metricas` | `test_b_gabarito_de_ordenar_linhas_exige_pares_e_nos_outros_tipos_indices` | 1 | passa | nada a implementar (ou comportamento já existente) |
 | `test_metricas` | `test_d_pecas_demais_reprova_sem_explodir` | 1 | passa | nada a implementar (ou comportamento já existente) |
 | `test_metricas` | `test_extrair_json_aceita_cerca_markdown_e_trata_lixo_como_invalido` | 1 | passa | nada a implementar (ou comportamento já existente) |
 | `test_metricas` | `test_resposta_invalida_do_modelo_conta_como_falha_de_schema` | 1 | passa | nada a implementar (ou comportamento já existente) |

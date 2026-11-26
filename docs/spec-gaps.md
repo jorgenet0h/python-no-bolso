@@ -45,9 +45,9 @@ Não existe OpenAPI exportado. Rotas e modelo de dados vêm de `docs/arquitetura
 | GAP-003 | 003 | "Priorizando os não resolvidos": e quando todos já foram resolvidos? Aleatório, o mais antigo, o menos recente? | Voltar a servir resolvidos, sem erro | `test_req_003` só cobre a priorização |
 | GAP-004 | 004 | `saida_esperada` e `explicacao` também entregam a resposta? Em `prever_saida`, `saida_esperada` **é** a resposta. | Nenhum de `gabarito`, `saida_esperada`, `explicacao`, `explicacoes_por_opcao` sai no GET | `test_req_004` |
 | GAP-006 | 006 | Sem status HTTP para `SEM_EXERCICIO` e sem formato para a "sugestão de filtro mais amplo" | 404; a sugestão vai em `message` (palavra "filtro") | `test_req_006` aceita qualquer 4xx |
-| GAP-008 | 008, 010 | Quantos índices por tipo? `ordenar_linhas` exige permutação; os demais, 1 índice. Rejeitar `true`, `1.5`, `"1"`, negativo? Índice repetido? | Lista de inteiros (não bool); tamanho 1, exceto `ordenar_linhas` (permutação) | `test_req_008`, `test_req_010` |
+| GAP-008 (atualizado: D-06) | 008, 010 | Quantos índices por tipo? `ordenar_linhas` exige permutação; os demais, 1 índice. Rejeitar `true`, `1.5`, `"1"`, negativo? Índice repetido? | Lista de inteiros (não bool); tamanho 1, exceto `ordenar_linhas` (permutação) | `test_req_008`, `test_req_010` |
 | GAP-009 | 009, 016 | REQ-009 só fala em registrar tentativa **correta**, mas REQ-016 (taxa de acerto) precisa das erradas | Toda resposta **válida** registra tentativa; REQ-009 só acrescenta a explicação | `test_req_016`, `test_req_009` |
-| GAP-011 | 011, 012, 013, 037 | De onde vem a "explicação específica da opção": do agente (em requisição) ou de `explicacoes_por_opcao` (já no modelo de dados)? Se já existe o campo, para que o agente? Também falta o tempo limite do REQ-013. E o explicador só recebe id e opção, logo **não recebe texto livre**: REQ-037 nem se aplicaria a ele. | Explicador gera ou escolhe a explicação; timeout configurável (ex.: 5 s); mesmo assim sem tools | `test_req_011`, `_012`, `_013`, `_037` |
+| GAP-011 (atualizado: D-17, REQ-045 na seção 5) | 011, 012, 013, 037 | De onde vem a "explicação específica da opção": do agente (em requisição) ou de `explicacoes_por_opcao` (já no modelo de dados)? Se já existe o campo, para que o agente? Também falta o tempo limite do REQ-013. E o explicador só recebe id e opção, logo **não recebe texto livre**: REQ-037 nem se aplicaria a ele. | Explicador gera ou escolhe a explicação; timeout configurável (ex.: 5 s); mesmo assim sem tools | `test_req_011`, `_012`, `_013`, `_037` |
 | GAP-014 | 014 | Chave do `localStorage` e comportamento com storage bloqueado (modo privado) | Qualquer chave; fallback em memória com UUID válido | `req-014.test.ts` |
 | GAP-016 | 016 | "Sequência de dias com prática": dias consecutivos até hoje ou até ontem? Fuso (UTC ou São Paulo)? Tentativa errada conta? | Consecutivos terminando hoje ou ontem, fuso `America/Sao_Paulo`, qualquer tentativa válida | `test_req_016` só cobre "praticou hoje = 1" |
 | GAP-017 | 017 | "Sem perder a sessão" não define o que é a sessão | Exercício atual, opção marcada e `device_id` preservados | `req-017.test.ts`, `test_e2e_02` |
@@ -99,3 +99,31 @@ Observações:
 - O corpo de erro do `/health` **não** segue `{code, message}` (REQ-032): é uma exceção deliberada, pois quem
   consome é monitor de saúde. Vale registrar a exceção no REQ-032.
 - `status` descreve a API (`ok`/`degraded`); `db` descreve o banco (`ok`/`erro`).
+
+## 5. Proposta de redação: REQ-045 novo e ajustes (D-06, D-14, D-17 alterados pelo usuário)
+
+Para a sessão 1 aplicar na SPEC.md. Os testes de REQ-045 já existem (`test_req_045_explicar_erro.py`).
+
+> - **REQ-045** Quando o usuário, depois de uma resposta incorreta, pedir "explicar meu erro", o sistema
+>   deve chamar o agente explicador com o exercício e a resposta do usuário, e exibir a explicação do
+>   raciocínio equivocado. A resposta é sempre numérica (índices, ou pares índice-indentação em
+>   `ordenar_linhas`), nunca texto livre. Se o agente falhar ou estourar o tempo, então o sistema deve
+>   exibir a explicação armazenada da opção escolhida. Esse pedido não registra tentativa.
+
+Consequências em requisitos existentes (a explicação armazenada por opção continua sendo exibida na hora, sem
+agente, conforme D-17):
+
+> - **REQ-012** O agente explicador não deve ter tool de execução e só deve receber dados estruturados:
+>   o id do exercício e a opção escolhida (explicação automática) ou o exercício e a resposta numérica
+>   do usuário (REQ-045).
+> - **REQ-008** O sistema deve aceitar como resposta apenas números inteiros: um índice por resposta e,
+>   em `ordenar_linhas`, uma lista de pares `[índice, nível de indentação]`, nunca texto livre.
+> - **REQ-010 / REQ-006** `RESPOSTA_INVALIDA` (422) vale para corpo malformado; exercício que não existe
+>   devolve `EXERCICIO_NAO_ENCONTRADO` (404), sem registrar tentativa.
+> - **REQ-026** Para `ordenar_linhas`, o exercício só é aprovado se existir **exatamente uma** combinação
+>   de ordem e indentação das peças que execute e produza a saída afirmada.
+> - **REQ-016** A sequência de dias usa o fuso `America/Sao_Paulo`; sem prática hoje, ela continua viva se
+>   houve prática ontem; ficar um dia inteiro sem praticar a zera.
+
+Observação sobre o REQ-037: o caminho REQ-045 recebe a resposta do usuário, que continua sendo só números;
+mesmo assim o agente fica sem tools (testado em `test_req_045_agente_recebe_exercicio_e_resposta_numerica...`).
