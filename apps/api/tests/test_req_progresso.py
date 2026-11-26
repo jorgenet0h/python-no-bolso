@@ -1,0 +1,47 @@
+"""REQ-015, REQ-016, REQ-018: progresso por aparelho anônimo.
+REQ-014 (UUID gerado no cliente) e REQ-017 (offline) são do front: Vitest e e2e."""
+
+import pytest
+
+from tests.contrato import chamar, contar, novo_device, semear_exercicio
+
+
+def test_req_015_tentativas_ligadas_ao_device_sem_cadastro(client):
+    ex = semear_exercicio("REQ-015", tema="funcoes")
+    d1, d2 = novo_device(), novo_device()
+    r = chamar(client, "POST", "/respostas", "REQ-015", device=d1,
+               json={"exercicio_id": ex["id"], "resposta": ex["gabarito"]})
+    assert r.status_code == 200  # sem login, e-mail ou senha
+    assert contar("Tentativa", "REQ-015", device_id=d1) == 1
+    assert contar("Tentativa", "REQ-015", device_id=d2) == 0
+    p2 = chamar(client, "GET", "/progresso", "REQ-015", device=d2).json()
+    assert p2["total_acertos"] == 0
+
+
+def test_req_016_progresso_mostra_acertos_taxa_por_tipo_e_sequencia(client, device):
+    certo = semear_exercicio("REQ-016", tipo="prever_saida")
+    bug = semear_exercicio("REQ-016", tipo="achar_bug")
+    for ex, resposta in [(certo, certo["gabarito"]), (bug, [0]), (bug, bug["gabarito"])]:
+        chamar(client, "POST", "/respostas", "REQ-016", device=device,
+               json={"exercicio_id": ex["id"], "resposta": resposta})
+    p = chamar(client, "GET", "/progresso", "REQ-016", device=device).json()
+    assert p["total_acertos"] == 2
+    assert p["taxa_por_tipo"]["prever_saida"] == pytest.approx(1.0)
+    assert p["taxa_por_tipo"]["achar_bug"] == pytest.approx(0.5)
+    assert p["sequencia_dias"] == 1  # praticou hoje
+
+
+@pytest.mark.parametrize("invalido", [
+    "", "abc", "123", "00000000-0000-0000-0000-00000000000", "not-a-uuid",
+    "' OR 1=1 --", "g" * 36, "../../etc/passwd",
+])
+def test_req_018_device_id_invalido_responde_device_invalido(client, invalido):
+    for metodo, rota in [("GET", "/progresso"), ("GET", "/exercicios")]:
+        resp = chamar(client, metodo, rota, "REQ-018", device=invalido)
+        assert 400 <= resp.status_code < 500
+        assert resp.json()["code"] == "DEVICE_INVALIDO"
+
+
+def test_req_018_device_id_ausente_tambem_e_invalido(client):
+    resp = chamar(client, "GET", "/progresso", "REQ-018")
+    assert resp.json()["code"] == "DEVICE_INVALIDO"
