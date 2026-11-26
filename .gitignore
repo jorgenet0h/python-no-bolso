@@ -14,3 +14,7 @@ dist/
 test-results/
 playwright-report/
 apps/web/e2e-results.xml
+
+# Evals: resultados são gerados sob demanda
+evals/results/*
+!evals/results/.gitkeep

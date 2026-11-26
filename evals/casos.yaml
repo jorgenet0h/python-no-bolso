@@ -1,0 +1,10 @@
+# Bateria pequena (cota dos modelos gratuitos). Só enums, como o gerador de verdade (REQ-021).
+casos:
+  - {id: c1, tipo: prever_saida, nivel: iniciante, tema: variaveis}
+  - {id: c2, tipo: prever_saida, nivel: intermediario, tema: listas}
+  - {id: c3, tipo: completar_lacuna, nivel: iniciante, tema: condicionais}
+  - {id: c4, tipo: completar_lacuna, nivel: intermediario, tema: funcoes}
+  - {id: c5, tipo: ordenar_linhas, nivel: iniciante, tema: lacos}
+  - {id: c6, tipo: ordenar_linhas, nivel: intermediario, tema: strings}
+  - {id: c7, tipo: achar_bug, nivel: iniciante, tema: listas}
+  - {id: c8, tipo: achar_bug, nivel: intermediario, tema: lacos}
