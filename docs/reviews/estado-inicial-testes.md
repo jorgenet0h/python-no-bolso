@@ -24,9 +24,9 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 
 | Resultado | Casos |
 |---|---|
-| (A) requisito não implementado | 161 |
+| (A) requisito não implementado | 160 |
 | (B) erro do próprio teste | 0 |
-| passa hoje | 49 |
+| passa hoje | 50 |
 | pulado (só Linux) | 0 |
 
 ## API (pytest)
@@ -74,7 +74,7 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 | `test_req_progresso` | `test_req_018_device_id_invalido_responde_device_invalido` | 8 | A | rota GET /progresso não existe (HTTP 404) |
 | `test_req_progresso` | `test_req_018_device_id_ausente_tambem_e_invalido` | 1 | A | rota GET /progresso não existe (HTTP 404) |
 | `test_req_qualidade` | `test_req_042_evals_rodam_o_mesmo_conjunto_em_2_ou_mais_modelos` | 1 | passa | nada a implementar (ou comportamento já existente) |
-| `test_req_qualidade` | `test_req_043_ci_roda_lint_testes_e_evals_deterministicos` | 1 | A | CI sem passo de evals determinísticos (sugestão: python -m evals.runner --deterministico; ver docs/spec-gaps.md) NAO-IMPLEMENTADO [REQ-043] CI sem passo de evals determinísticos (sugestão: python -m evals.runner --deterministico; ver docs/spec-gaps.md) |
+| `test_req_qualidade` | `test_req_043_ci_roda_lint_testes_e_evals_deterministicos` | 1 | passa | nada a implementar (ou comportamento já existente) |
 | `test_req_seguranca` | `test_req_036_texto_do_usuario_e_dado_nunca_instrucao` | 1 | A | módulo 'app.db' não existe |
 | `test_req_seguranca` | `test_req_037_agente_com_texto_livre_nao_tem_tool_de_execucao` | 1 | A | módulo 'app.agent.loop' não existe |
 | `test_req_seguranca` | `test_req_039_repositorio_sem_segredos` | 1 | passa | nada a implementar (ou comportamento já existente) |

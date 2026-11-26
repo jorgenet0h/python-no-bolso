@@ -49,7 +49,7 @@ requisito está no nome (`test_req_012_...`). Camadas: **api** (pytest), **web**
 | REQ-040 | O sistema deve limitar a taxa de requisições por aparelho e por IP. | `api` limita_taxa_por_aparelho_e_por_ip | 1×A | Limites numéricos pendentes (GAP-040) |
 | REQ-041 | O sistema deve restringir CORS à origem do front configurada. | `api` cors_restrito_a_origem_do_front | 1×A |  |
 | REQ-042 | O repositório deve ter evals que rodem o mesmo conjunto de casos em 2 ou mais modelos e... | `api` evals_rodam_o_mesmo_conjunto_em_2_ou_mais_modelos<br>`evals` evals/tests/metricas.py (bateria, executor, métricas) (46) | 47×pass | Também coberto por `evals/tests/test_metricas.py` |
-| REQ-043 | O CI deve rodar lint, testes e evals determinísticos a cada PR. | `api` ci_roda_lint_testes_e_evals_deterministicos | 1×A | Conflito com a instrução de não rodar evals no CI (GAP-043) |
+| REQ-043 | O CI deve rodar lint, testes e evals determinísticos a cada PR. | `api` ci_roda_lint_testes_e_evals_deterministicos | 1×pass | Conflito com a instrução de não rodar evals no CI (GAP-043) |
 | REQ-044 | O sistema deve expor `GET /health` com o status da API e do banco. | `api` health_expoe_status_da_api_e_do_banco | 1×A | Conflita com `test_health.py` (DISP-001) |
 
 ## Requisitos sem teste

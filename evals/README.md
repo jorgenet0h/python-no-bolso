@@ -31,8 +31,8 @@ python -m pytest evals/tests
 ```
 
 Resultados: `evals/results/<data>/` com `<modelo>.json`, `<modelo>.md` (tabela) e `resumo.md`.
-**Os evals não rodam no CI**: gastam cota e ficam sob demanda. O passo `--deterministico` é barato e
-poderia entrar no CI (decisão pendente, ver `docs/spec-gaps.md`, GAP-043).
+**Evals com modelos reais não rodam no CI**: gastam cota e ficam sob demanda. O CI roda só o modo
+`--deterministico` e os testes da bateria (job `evals` em `.github/workflows/ci.yml`, REQ-043).
 
 ## Avisos
 
