@@ -3,7 +3,14 @@ REQ-014 (UUID gerado no cliente) e REQ-017 (offline) são do front: Vitest e e2e
 
 import pytest
 
-from tests.contrato import chamar, checar_erro, contar, novo_device, semear_exercicio
+from tests.contrato import (
+    chamar,
+    checar_erro,
+    contar,
+    novo_device,
+    semear_exercicio,
+    semear_tentativa,
+)
 
 
 def test_req_015_tentativas_ligadas_ao_device_sem_cadastro(client):
@@ -44,3 +51,36 @@ def test_req_018_device_id_invalido_responde_device_invalido(client, invalido):
 def test_req_018_device_id_ausente_tambem_e_invalido(client):
     resp = chamar(client, "GET", "/progresso", "REQ-018")
     checar_erro(resp, "DEVICE_INVALIDO")
+
+
+def _praticar(device, ex, *dias_atras):
+    for d in dias_atras:  # 0 = hoje, 1 = ontem, 2 = anteontem...
+        semear_tentativa("REQ-016", device, ex["id"], dias_atras=d)
+
+
+def _sequencia(client, device) -> int:
+    return chamar(client, "GET", "/progresso", "REQ-016", device=device).json()["sequencia_dias"]
+
+
+def test_req_016_praticou_ontem_mantem_a_sequencia(client, device):
+    """D-12 (alterada pelo usuário): sem prática hoje, a sequência segue viva se ontem teve."""
+    ex = semear_exercicio("REQ-016")
+    _praticar(device, ex, 2, 1)  # anteontem e ontem, ainda não praticou hoje
+    assert _sequencia(client, device) == 2
+    _praticar(device, ex, 0)  # praticou hoje: a sequência cresce
+    assert _sequencia(client, device) == 3
+
+
+def test_req_016_pulou_um_dia_zera_a_sequencia(client, device):
+    """D-12 (alterada pelo usuário): ficar um dia inteiro sem praticar quebra a sequência."""
+    ex = semear_exercicio("REQ-016")
+    _praticar(device, ex, 3, 2)  # praticou antes, mas ontem e hoje ficaram em branco
+    assert _sequencia(client, device) == 0
+    _praticar(device, ex, 0)  # volta hoje, tendo pulado ontem: recomeça do 1
+    assert _sequencia(client, device) == 1
+
+
+def test_req_016_sequencia_conta_dias_distintos_e_ignora_lacunas_antigas(client, device):
+    ex = semear_exercicio("REQ-016")
+    _praticar(device, ex, 9, 8, 6, 2, 1, 1, 0, 0, 0)  # várias tentativas no mesmo dia contam 1
+    assert _sequencia(client, device) == 3  # hoje, ontem e anteontem; a lacuna do dia 3 quebra
