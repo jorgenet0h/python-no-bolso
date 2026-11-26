@@ -26,6 +26,20 @@ TIPOS = ["prever_saida", "completar_lacuna", "ordenar_linhas", "achar_bug"]
 NIVEIS = ["iniciante", "intermediario", "avancado"]
 TEMAS = ["variaveis", "condicionais", "lacos", "listas", "funcoes", "strings", "dicionarios", "erros"]
 
+# Código e status HTTP de cada erro (D-14). Toda resposta de erro é {"code", "message"}.
+ERROS = {
+    "SEM_EXERCICIO": 404,
+    "RESPOSTA_INVALIDA": 422,
+    "FILTRO_INVALIDO": 422,
+    "ENUM_INVALIDO": 422,
+    "DEVICE_INVALIDO": 400,
+    "LIMITE_EXCEDIDO": 429,
+    "INDISPONIVEL": 503,
+    "ERRO_INTERNO": 500,
+    "NAO_ENCONTRADO": 404,
+    "METODO_NAO_PERMITIDO": 405,
+}
+
 # Campos que entregariam a resposta ao cliente (REQ-004).
 CAMPOS_GABARITO = ["gabarito", "saida_esperada", "explicacao", "explicacoes_por_opcao"]
 
@@ -70,6 +84,15 @@ def chamar(client, metodo: str, rota: str, req: str, device: str | None = None, 
         if not (isinstance(corpo, dict) and "code" in corpo):
             nao_implementado(req, f"rota {metodo} {rota} não existe (HTTP {resp.status_code})")
     return resp
+
+
+def checar_erro(resp, code: str) -> None:
+    """Confere código, status HTTP e formato exato {code, message} de uma resposta de erro."""
+    corpo = resp.json()
+    assert corpo.get("code") == code, f"esperava {code}, veio {corpo}"
+    assert resp.status_code == ERROS[code], f"{code}: HTTP {resp.status_code}"
+    assert {"code", "message"} <= set(corpo)
+    assert corpo["message"]
 
 
 # ---------------------------------------------------------------- exercícios de exemplo

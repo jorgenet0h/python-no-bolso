@@ -79,8 +79,9 @@ def test_req_021_gerador_recebe_apenas_valores_de_enum(hostil):
     erro_dominio = atributo("app.errors", "ErroDominio", "REQ-021")
     provedor = ProvedorFalso(respostas=[resposta_final()])
     for campo in ("tipo", "nivel", "tema"):
-        with pytest.raises(erro_dominio):
+        with pytest.raises(erro_dominio) as erro:
             _gerar(provedor, **{campo: hostil})
+        assert erro.value.code == "ENUM_INVALIDO"
     assert provedor.chamadas == [], "valor fora do enum não pode chegar ao modelo"
     nomes = set(inspect.signature(atributo("app.agent.loop", "gerar", "REQ-021")).parameters)
     assert not nomes & {"prompt", "texto", "instrucao", "contexto", "mensagem"}

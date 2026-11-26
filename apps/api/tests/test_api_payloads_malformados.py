@@ -7,7 +7,7 @@ import uuid
 import httpx
 import pytest
 
-from tests.contrato import chamar, contar, semear_exercicio
+from tests.contrato import chamar, checar_erro, contar, semear_exercicio
 
 CORPOS_RUINS = {
     "json-quebrado": b"{ nao eh json",
@@ -29,9 +29,8 @@ CORPOS_RUINS = {
 def test_req_032_corpo_malformado_em_respostas_nunca_vira_5xx(client, device, nome):
     resp = chamar(client, "POST", "/respostas", "REQ-032", device=device,
                   content=CORPOS_RUINS[nome], headers={"content-type": "application/json"})
-    assert 400 <= resp.status_code < 500, f"{nome}: HTTP {resp.status_code}"
-    corpo = resp.json()
-    assert set(corpo) == {"code", "message"}
+    checar_erro(resp, "RESPOSTA_INVALIDA")  # D-14: qualquer corpo inválido em /respostas
+    assert set(resp.json()) == {"code", "message"}
     assert "Traceback" not in resp.text
 
 
@@ -42,8 +41,7 @@ def test_req_032_corpo_malformado_em_respostas_nunca_vira_5xx(client, device, no
 def test_req_010_exercicio_id_malformado_ou_inexistente(client, device, exercicio_id):
     resp = chamar(client, "POST", "/respostas", "REQ-010", device=device,
                   json={"exercicio_id": exercicio_id, "resposta": [0]})
-    assert 400 <= resp.status_code < 500
-    assert set(resp.json()) == {"code", "message"}
+    checar_erro(resp, "RESPOSTA_INVALIDA")
     assert contar("Tentativa", "REQ-010", device_id=device) == 0
 
 
@@ -67,8 +65,7 @@ def test_req_008_cliente_nao_consegue_forcar_correta_nem_gabarito(client, device
 ])
 def test_req_002_filtros_malformados_em_exercicios(client, device, params):
     resp = chamar(client, "GET", "/exercicios", "REQ-002", device=device, params=params)
-    assert 400 <= resp.status_code < 500
-    assert set(resp.json()) == {"code", "message"}
+    checar_erro(resp, "FILTRO_INVALIDO")
     for eco in ("OR 1=1", "jndi", "passwd"):
         assert eco not in resp.json()["message"], "mensagem de erro ecoa o texto do usuário"
 
@@ -81,13 +78,15 @@ def test_req_018_device_header_hostil(client, device_header):
         resp = chamar(client, "GET", "/progresso", "REQ-018", device=device_header)
     except httpx.HTTPError:  # o cliente pode recusar enviar o header: não chegou à API
         return
-    assert 400 <= resp.status_code < 500
+    checar_erro(resp, "DEVICE_INVALIDO")
     assert "x-injetado" not in {k.lower() for k in resp.headers}
 
 
 def test_req_033_metodo_e_rota_inexistentes_seguem_o_formato_de_erro(client, device):
-    for metodo, rota in [("DELETE", "/exercicios"), ("PUT", "/respostas"), ("GET", "/nao-existe")]:
+    casos = [("DELETE", "/exercicios", "METODO_NAO_PERMITIDO"),
+             ("PUT", "/respostas", "METODO_NAO_PERMITIDO"),
+             ("GET", "/nao-existe", "NAO_ENCONTRADO")]
+    for metodo, rota, code in casos:
         resp = client.request(metodo, rota, headers={"X-Device-Id": device})
-        assert resp.status_code in (404, 405)
-        corpo = resp.json()
-        assert set(corpo) == {"code", "message"}, f"{metodo} {rota}: formato {sorted(corpo)}"
+        checar_erro(resp, code)
+        assert set(resp.json()) == {"code", "message"}

@@ -3,7 +3,7 @@ REQ-014 (UUID gerado no cliente) e REQ-017 (offline) são do front: Vitest e e2e
 
 import pytest
 
-from tests.contrato import chamar, contar, novo_device, semear_exercicio
+from tests.contrato import chamar, checar_erro, contar, novo_device, semear_exercicio
 
 
 def test_req_015_tentativas_ligadas_ao_device_sem_cadastro(client):
@@ -38,10 +38,9 @@ def test_req_016_progresso_mostra_acertos_taxa_por_tipo_e_sequencia(client, devi
 def test_req_018_device_id_invalido_responde_device_invalido(client, invalido):
     for metodo, rota in [("GET", "/progresso"), ("GET", "/exercicios")]:
         resp = chamar(client, metodo, rota, "REQ-018", device=invalido)
-        assert 400 <= resp.status_code < 500
-        assert resp.json()["code"] == "DEVICE_INVALIDO"
+        checar_erro(resp, "DEVICE_INVALIDO")
 
 
 def test_req_018_device_id_ausente_tambem_e_invalido(client):
     resp = chamar(client, "GET", "/progresso", "REQ-018")
-    assert resp.json()["code"] == "DEVICE_INVALIDO"
+    checar_erro(resp, "DEVICE_INVALIDO")

@@ -4,10 +4,19 @@ import logging
 
 import pytest
 
-from tests.contrato import HEALTH_DEGRADADO, atributo, banco_fora, chamar, nao_implementado
+from tests.contrato import (
+    ERROS,
+    HEALTH_DEGRADADO,
+    atributo,
+    banco_fora,
+    chamar,
+    checar_erro,
+    nao_implementado,
+)
 
 SEGREDO_INTERNO = "segredo-interno-do-teste-9f3a"
-CODIGOS_DE_DOMINIO = {"SEM_EXERCICIO", "RESPOSTA_INVALIDA", "DEVICE_INVALIDO", "INDISPONIVEL"}
+CODIGOS_DE_DOMINIO = {"SEM_EXERCICIO", "RESPOSTA_INVALIDA", "FILTRO_INVALIDO", "ENUM_INVALIDO",
+                      "DEVICE_INVALIDO", "LIMITE_EXCEDIDO", "INDISPONIVEL"}
 
 
 def _todas_subclasses(cls):
@@ -38,17 +47,18 @@ def test_req_031_falhas_de_dominio_sao_excecoes_tipadas():
     assert not faltando, f"sem exceção tipada para: {sorted(faltando)}"
     for f in filhas:
         assert isinstance(getattr(f, "status_code", None), int)
+        if getattr(f, "code", None) in ERROS:
+            assert f.status_code == ERROS[f.code], f"{f.code}: status {f.status_code}"
 
 
 def test_req_032_handler_global_responde_code_message_com_status_adequado(client, device):
     resp = chamar(client, "GET", "/exercicios", "REQ-032", device="nao-e-uuid")
-    assert resp.status_code == 400 or resp.status_code == 422
+    checar_erro(resp, "DEVICE_INVALIDO")
     assert set(resp.json()) == {"code", "message"}
-    assert resp.json()["code"] == "DEVICE_INVALIDO"
     # Falha de validação do framework também passa pelo mesmo formato.
     resp = chamar(client, "POST", "/respostas", "REQ-032", device=device, content="{ isto nao e json",
                   headers={"content-type": "application/json"})
-    assert 400 <= resp.status_code < 500
+    checar_erro(resp, "RESPOSTA_INVALIDA")
     assert set(resp.json()) == {"code", "message"}
 
 
@@ -73,11 +83,9 @@ def test_req_034_erro_imprevisto_vira_erro_interno_com_id_de_correlacao(
         nao_implementado("REQ-034", "sem handler global: 500 sem corpo {code, message}")
     corpo = resp.json()
     assert corpo["code"] == "ERRO_INTERNO"
-    # id de correlação no corpo ou em header, e o mesmo id aparece no log do servidor.
-    candidatos = [v for k, v in corpo.items() if "correla" in k.lower() or "request" in k.lower()]
-    candidatos += [v for k, v in resp.headers.items()
-                   if "correlation" in k.lower() or "request-id" in k.lower()]
-    assert candidatos, "resposta sem id de correlação"
+    # D-15: id de correlação no campo `correlacao_id` do corpo, repetido no log do servidor.
+    candidatos = [corpo.get("correlacao_id")]
+    assert candidatos[0], "resposta sem correlacao_id"
     log = caplog.text  # inclui o traceback formatado
     assert SEGREDO_INTERNO in log and "RuntimeError" in log, "stack trace deve ir só para o log"
     assert str(candidatos[0]) in log

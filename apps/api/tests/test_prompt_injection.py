@@ -37,7 +37,7 @@ INJECOES = [
 @pytest.mark.parametrize("hostil", INJECOES, ids=[f"injecao{i}" for i in range(len(INJECOES))])
 def test_req_038_texto_hostil_na_resposta_do_usuario_nao_chega_a_nenhum_agente(
         client, device, monkeypatch, hostil):
-    ex = semear_exercicio("REQ-038")
+    ex = semear_exercicio("REQ-038", explicacoes_por_opcao={})  # força o caminho do agente (D-17)
     explicador = carregar("app.agent.explicador", "REQ-038")
     chamadas = []
     monkeypatch.setattr(explicador, "explicar", lambda *a, **kw: chamadas.append((a, kw)) or "x")

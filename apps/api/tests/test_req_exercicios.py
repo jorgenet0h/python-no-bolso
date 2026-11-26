@@ -6,6 +6,7 @@ from tests.contrato import (
     TEMAS,
     TIPOS,
     chamar,
+    checar_erro,
     contar,
     semear_exercicio,
 )
@@ -44,8 +45,7 @@ def test_req_002_exercicio_tem_nivel_e_tema_dos_enums(client, device):
     assert corpo.json()["tema"] in TEMAS
     # Valor fora do enum no filtro é rejeitado com erro de domínio, nunca ignorado.
     ruim = _pedir(client, "REQ-002", device, tipo="tipo_que_nao_existe")
-    assert 400 <= ruim.status_code < 500
-    assert "code" in ruim.json()
+    checar_erro(ruim, "FILTRO_INVALIDO")
 
 
 def test_req_003_devolve_validado_priorizando_nao_resolvidos(client, device):
@@ -75,7 +75,5 @@ def test_req_006_sem_exercicio_devolve_erro_com_sugestao(client, device):
                   tipo="achar_bug") == 0
     resp = _pedir(client, "REQ-006", device, tipo="achar_bug", nivel="intermediario",
                   tema="strings")
-    assert 400 <= resp.status_code < 500
-    corpo = resp.json()
-    assert corpo["code"] == "SEM_EXERCICIO"
-    assert "filtro" in corpo["message"].lower()  # sugere um filtro mais amplo
+    checar_erro(resp, "SEM_EXERCICIO")
+    assert "filtro" in resp.json()["message"].lower()  # sugere um filtro mais amplo

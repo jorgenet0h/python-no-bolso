@@ -7,6 +7,7 @@ from tests.contrato import (
     atributo,
     carregar,
     chamar,
+    checar_erro,
     contar,
     semear_exercicio,
 )
@@ -35,8 +36,7 @@ def test_req_007_compara_ao_gabarito_e_informa(client, device):
 def test_req_008_aceita_apenas_indices_numericos(client, device, ruim):
     ex = semear_exercicio("REQ-008")
     resp = _responder(client, "REQ-008", device, ex["id"], ruim)
-    assert resp.status_code in (400, 422)
-    assert resp.json()["code"] == "RESPOSTA_INVALIDA"
+    checar_erro(resp, "RESPOSTA_INVALIDA")
     assert contar("Tentativa", "REQ-008", device_id=device) == 0
 
 
@@ -55,8 +55,7 @@ def test_req_009_acerto_registra_tentativa_e_mostra_explicacao(client, device):
 def test_req_010_resposta_invalida_rejeitada_sem_registrar(client, device, ruim):
     ex = semear_exercicio("REQ-010")
     resp = _responder(client, "REQ-010", device, ex["id"], ruim)
-    assert resp.status_code in (400, 422)
-    assert resp.json()["code"] == "RESPOSTA_INVALIDA"
+    checar_erro(resp, "RESPOSTA_INVALIDA")
     assert contar("Tentativa", "REQ-010", device_id=device) == 0
 
 
@@ -88,7 +87,8 @@ def test_req_012_explicador_recebe_so_id_e_opcao_e_nao_tem_tool(device):
 
 
 def test_req_013_falha_do_explicador_cai_na_explicacao_generica(client, device, monkeypatch):
-    ex = semear_exercicio("REQ-013")
+    # D-17: se a opção tem explicação armazenada o agente nem é chamado; REQ-013 vale sem ela.
+    ex = semear_exercicio("REQ-013", explicacoes_por_opcao={})
     mod = carregar("app.agent.explicador", "REQ-013")
 
     def quebra(*a, **kw):
