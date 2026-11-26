@@ -142,13 +142,53 @@ def test_d_ordem_unica_passa():
 def test_d_ordem_ambigua_reprova():
     ex = exercicio_modelo("ordenar_linhas", "iniciante", "lacos", "x", "ordem_ambigua")
     ok, motivo = metrica_d(ex)
-    assert ok is False and "2 ordens" in motivo
+    assert ok is False and "2 combinações" in motivo
 
 
 def test_d_nenhuma_ordem_valida_reprova():
     ex = {**EX["ordenar_linhas"], "saida_esperada": "999\n"}
     ok, motivo = metrica_d(ex)
-    assert ok is False and "0 ordens" in motivo
+    assert ok is False and "0 combinações" in motivo
+
+
+def test_d_indentacao_alternativa_tambem_valida_reprova():
+    """D-06: mesma ordem, e a indentação sozinha deixa duas combinações válidas."""
+    ex = {**EX["ordenar_linhas"],
+          "opcoes": ["print('b')", "for i in range(1):", "print('a')"],
+          "gabarito": [[1, 0], [2, 1], [0, 0]], "saida_esperada": "a\nb\n"}
+    # for / print a (dentro) / print b (fora)  e  for / print a (dentro) / print b (dentro)
+    # (e também print a / for / print b dentro) produzem a MESMA saída: não é única.
+    assert metrica_a(ex) == (True, None)
+    ok, motivo = metrica_d(ex)
+    assert ok is False and motivo[0] in "23456789" and "combinações" in motivo  # mais de uma
+
+
+def test_d_corpo_do_laco_exige_indentacao_para_ser_unica():
+    ex = EX["ordenar_linhas"]
+    assert metrica_d(ex) == (True, None)
+    # A mesma ordem sem indentar `total += i` NÃO é a resposta certa (métrica a).
+    errado = {**ex, "gabarito": [[p, 0] for p, _ in ex["gabarito"]]}
+    assert metrica_a(errado)[0] is False
+
+
+def test_combinacoes_podadas_pela_gramatica():
+    from evals.metricas import combinacoes
+
+    pecas = ["for i in range(2):", "print(i)"]
+    todas = {tuple(c) for c in combinacoes(pecas)}
+    # Só 'for' primeiro, com o corpo um nível abaixo; ou 'print' primeiro e 'for' depois.
+    assert ((0, 0), (1, 1)) in todas
+    assert ((1, 0), (0, 0)) in todas
+    assert ((0, 0), (1, 0)) not in todas  # laço sem corpo
+    assert all(c[0][1] == 0 for c in todas)  # a primeira linha nunca é indentada
+
+
+def test_b_gabarito_de_ordenar_linhas_exige_pares_e_nos_outros_tipos_indices():
+    ordenar = EX["ordenar_linhas"]
+    assert metrica_b({**ordenar, "gabarito": [3, 1, 2, 0]})[0] is False  # formato antigo
+    assert metrica_b({**ordenar, "gabarito": [[3, 0], [1, 0], [2, 9], [0, 0]]})[0] is False
+    assert metrica_b({**ordenar, "gabarito": [[3, 0], [1, 0], [2, 1.5], [0, 0]]})[0] is False
+    assert metrica_b({**EX["prever_saida"], "gabarito": [[1, 0]]})[0] is False
 
 
 def test_d_pecas_demais_reprova_sem_explodir():

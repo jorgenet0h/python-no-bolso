@@ -12,6 +12,7 @@ from tests.contrato import (
     contar,
     exercicio_exemplo,
     listar,
+    programa_ordenado,
     resposta_final,
 )
 
@@ -57,8 +58,8 @@ def test_req_026_ordenar_linhas_sem_permutacao_errada_distinguivel_rejeita():
     # Toda ordem produz a mesma saída: o exercício não tem ordem única.
     res = _validar(ex, ExecutorFalso(stdout="3\n"))
     assert res.aprovado is False
-    # Uma permutação errada que falha ao executar torna a ordem única: aprova.
-    correto = "\n".join(ex["opcoes"][i] for i in ex["gabarito"])
+    # Uma combinação errada que falha ao executar torna a ordem única: aprova.
+    correto = programa_ordenado(ex)
 
     def seletivo(codigo, **kw):
         if codigo == correto:
@@ -66,6 +67,27 @@ def test_req_026_ordenar_linhas_sem_permutacao_errada_distinguivel_rejeita():
         return ResultadoExecucao(ok=False, stderr="NameError")
 
     assert _validar(ex, seletivo).aprovado is True
+
+
+def test_req_026_ordenar_linhas_com_indentacao_alternativa_valida_rejeita():
+    """D-06: só vale se existir UMA combinação ordem+indentação. Aqui a mesma ordem, com
+    `print(total)` dentro do laço, também roda e dá a mesma saída: a combinação não é única."""
+    ex = exercicio_exemplo(tipo="ordenar_linhas")
+    correto = programa_ordenado(ex)
+    variante = programa_ordenado(ex, [[3, 0], [1, 0], [2, 1], [0, 1]])
+    assert variante != correto
+
+    def aceita_duas(codigo, **kw):
+        if codigo in (correto, variante):
+            return ResultadoExecucao(ok=True, stdout="3\n")
+        return ResultadoExecucao(ok=False, stderr="IndentationError")
+
+    assert _validar(ex, aceita_duas).aprovado is False
+    # Sem a variante, a combinação é única e o exercício é aprovado.
+    def so_correto(codigo, **kw):
+        return aceita_duas(codigo) if codigo == correto else ResultadoExecucao(ok=False)
+
+    assert _validar(ex, so_correto).aprovado is True
 
 
 def test_req_028_validacao_aprovada_salva_com_status_validado():
@@ -98,7 +120,14 @@ def _sem(campo):
     exercicio_exemplo(gabarito=["a"]), exercicio_exemplo(enunciado="x" * 100_000),
     exercicio_exemplo(codigo="x" * 1_000_000), exercicio_exemplo(opcoes=["a"] * 500),
     {"final": "texto solto, não é JSON de exercício"}, [], None,
-], ids=[f"payload{i}" for i in range(16)])
+    # ordenar_linhas: gabarito é lista de pares [índice, indentação] (D-06)
+    exercicio_exemplo(tipo="ordenar_linhas", gabarito=[3, 1, 2, 0]),
+    exercicio_exemplo(tipo="ordenar_linhas", gabarito=[[3, 0], [1, 0], [2, -1], [0, 0]]),
+    exercicio_exemplo(tipo="ordenar_linhas", gabarito=[[3, 0], [1, 0], [2, 99], [0, 0]]),
+    exercicio_exemplo(tipo="ordenar_linhas", gabarito=[[3, 0], [3, 0], [2, 1], [0, 0]]),
+    exercicio_exemplo(tipo="ordenar_linhas", gabarito=[[3, 0], [1, 0], [2, 1]]),
+    exercicio_exemplo(tipo="prever_saida", gabarito=[[1, 0]]),
+], ids=[f"payload{i}" for i in range(22)])
 def test_req_030_schema_invalido_rejeitado_antes_de_executar_codigo(invalido):
     executor = ExecutorFalso(stdout="5\n")
     res = _validar(copy.deepcopy(invalido), executor)

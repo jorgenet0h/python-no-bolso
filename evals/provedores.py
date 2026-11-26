@@ -109,14 +109,17 @@ def exercicio_modelo(tipo: str, nivel: str, tema: str, caso: str, defeito: str |
               "codigo": f"total = {a} + ___\nprint(total)", "opcoes": opcoes,
               "gabarito": [idx], "saida_esperada": f"{a + b}\n"}
     elif tipo == "ordenar_linhas":
-        pecas = [f"x = {a}", f"y = x * {b}", "print(y)"]
-        if defeito == "ordem_ambigua":
-            pecas = [f"x = {a}", f"y = {b}", "print(x + y)"]  # duas ordens válidas
-        ordem_embaralhada = [2, 0, 1]
-        opcoes = [pecas[i] for i in ordem_embaralhada]
-        gabarito = [ordem_embaralhada.index(i) for i in range(3)]
-        saida = f"{a * b}\n" if defeito != "ordem_ambigua" else f"{a + b}\n"
-        ex = {**base, "enunciado": "Ordene as linhas para o programa imprimir o resultado.",
+        k = a + 2  # >= 4, para o laço não coincidir com outras combinações
+        # Peças na ordem certa, com o nível de indentação de cada uma (D-06).
+        pecas = ["total = 0", f"for i in range({k}):", "total += i", "print(total)"]
+        niveis = [0, 0, 1, 0]
+        saida = f"{sum(range(k))}\n"
+        if defeito == "ordem_ambigua":  # duas ordens válidas
+            pecas, niveis, saida = [f"x = {a}", f"y = {b}", "print(x + y)"], [0, 0, 0], f"{a + b}\n"
+        embaralhada = list(range(len(pecas)))[::-1]  # opcoes aparecem fora de ordem
+        opcoes = [pecas[i] for i in embaralhada]
+        gabarito = [[embaralhada.index(i), niveis[i]] for i in range(len(pecas))]
+        ex = {**base, "enunciado": "Ordene e indente as linhas para o programa imprimir o resultado.",
               "codigo": "", "opcoes": opcoes, "gabarito": gabarito, "saida_esperada": saida}
     else:  # achar_bug
         n = a + 2
