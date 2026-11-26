@@ -19,8 +19,8 @@ CORPOS_RUINS = {
     "utf8-invalido": b'{"exercicio_id": "\xff\xfe"}',
     "nan": b'{"exercicio_id": "x", "resposta": NaN}',
     "profundidade": b"[" * 5000 + b"]" * 5000,
-    "campo-extra-hostil": json.dumps({"exercicio_id": str(uuid.uuid4()), "resposta": [0],
-                                      "correta": True, "gabarito": [0], "__proto__": {}}).encode(),
+    # Campos extras hostis com exercício real são cobertos em test_req_008_cliente_nao_consegue...;
+    # com UUID bem formado que não existe a resposta é 404 (D-14), não RESPOSTA_INVALIDA.
     "corpo-enorme": json.dumps({"exercicio_id": "x", "resposta": [0] * 200_000}).encode(),
 }
 
