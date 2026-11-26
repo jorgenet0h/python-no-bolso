@@ -4,6 +4,9 @@ Escrito pela sessão de testes. **A SPEC.md não foi editada.** Cada item diz o 
 escrever o teste, o que o teste assumiu e a mudança proposta. Você decide; quando decidir, a SPEC
 muda no mesmo PR da implementação (CLAUDE.md, regra 1) e os testes seguem a decisão.
 
+> **Atualização:** as questões abertas abaixo foram fechadas em [`decisoes-contrato.md`](decisoes-contrato.md)
+> (D-01 a D-33). Esta página fica como histórico do que a SPEC não definia.
+
 Como ler a coluna **Teste**: é o que passa a depender da decisão. Todo o "contrato proposto" está
 concentrado em `apps/api/tests/contrato.py` e `apps/web/tests/contrato.ts`: se a implementação
 escolher outros nomes, só esses dois arquivos mudam.

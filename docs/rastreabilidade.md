@@ -8,7 +8,7 @@ requisito está no nome (`test_req_012_...`). Camadas: **api** (pytest), **web**
 | REQ | Requisito | Testes | Estado inicial | Observação |
 |---|---|---|---|---|
 | REQ-001 | O sistema deve oferecer quatro tipos de exercício: `prever_saida`, `completar_lacuna`, ... | `api` quatro_tipos_de_exercicio_sao_oferecidos | 1×A |  |
-| REQ-002 | O sistema deve classificar cada exercício em um nível e um tema dos enums acima. | `api` filtros_malformados_em_exercicios (6)<br>`api` exercicio_tem_nivel_e_tema_dos_enums | 7×A |  |
+| REQ-002 | O sistema deve classificar cada exercício em um nível e um tema dos enums acima. | `api` filtros_malformados_em_exercicios (6)<br>`api` todos_os_niveis_e_temas_sao_aceitos<br>`api` exercicio_tem_nivel_e_tema_dos_enums | 8×A |  |
 | REQ-003 | Quando o usuário pedir um exercício, o sistema deve devolver um exercício validado, fil... | `api` devolve_validado_priorizando_nao_resolvidos<br>`e2e` e2e_01_resolver_so_com_toques_acertar_ver_explicacao_e_progresso | 2×A |  |
 | REQ-004 | O sistema não deve incluir o gabarito na resposta que entrega o exercício ao cliente. | `api` resposta_nao_inclui_gabarito<br>`e2e` e2e_01_resolver_so_com_toques_acertar_ver_explicacao_e_progresso | 2×A |  |
 | REQ-005 | O sistema deve permitir resolver todos os tipos usando apenas toques, sem digitação de ... | `e2e` e2e_01_resolver_so_com_toques_acertar_ver_explicacao_e_progresso | 1×A | Só e2e e só em `prever_saida` (parcial; ver spec-gaps seção 3) |

@@ -24,7 +24,7 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 
 | Resultado | Casos |
 |---|---|
-| (A) requisito não implementado | 161 |
+| (A) requisito não implementado | 162 |
 | (B) erro do próprio teste | 0 |
 | passa hoje | 49 |
 | pulado (só Linux) | 0 |
@@ -65,6 +65,7 @@ Limite desta verificação: a referência foi escrita por um agente com acesso a
 | `test_req_erros` | `test_req_034_erro_imprevisto_vira_erro_interno_com_id_de_correlacao` | 1 | A | sem handler global: 500 sem corpo {code, message} |
 | `test_req_erros` | `test_req_035_banco_indisponivel` | 1 | A | módulo 'app.db' não existe |
 | `test_req_exercicios` | `test_req_001_quatro_tipos_de_exercicio_sao_oferecidos` | 1 | A | módulo 'app.db' não existe |
+| `test_req_exercicios` | `test_req_002_todos_os_niveis_e_temas_sao_aceitos` | 1 | A | módulo 'app.db' não existe |
 | `test_req_exercicios` | `test_req_002_exercicio_tem_nivel_e_tema_dos_enums` | 1 | A | módulo 'app.db' não existe |
 | `test_req_exercicios` | `test_req_003_devolve_validado_priorizando_nao_resolvidos` | 1 | A | módulo 'app.db' não existe |
 | `test_req_exercicios` | `test_req_004_resposta_nao_inclui_gabarito` | 1 | A | módulo 'app.db' não existe |
