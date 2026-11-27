@@ -14,11 +14,11 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - PR 5 (#8): `GET /progresso`. Aprovado.
 - PR 6 (#9): rate limit e CORS. Aprovado.
 - PR 7 (#10): sandbox (REQ-027), confirmado no CI Linux. Aprovado.
-- PR 8 (`feat/api-validador`): `app/validador.py` (REQ-025, 026, 030): schema (com `jsonschema`, cópia do
-  `evals/exercicio.schema.json`; se um mudar, mudar o outro), execução independente por tipo, unicidade de ordem+indentação em
-  `ordenar_linhas`, `achar_bug` com bug divergente da correção. Conferido com o sandbox real nos 4 tipos.
-  REQ-025, 028 e 029 ainda dependem do loop (PR 9).
-  Faltam: loop/CLI (REQ-019 a 024, 028, 029), explicador (REQ-012, 013, 037, 045, 038), Alembic, front.
+- PR 8 (#11): validador. Aprovado.
+- PR 9 (`feat/api-loop-agente`): `app/agent/loop.py` (REQ-019 a 023, 025, 028, 029), `app/agent/provedores.py` (Gemini e Groq
+  reais, ainda não exercitados com chave), `app/config.py` (`carregar_provedor`) e `app/cli.py` (`gerar_lote`; comando
+  `python -m app.cli gerar ...`). `gerar_lote` não deduplica exercícios idênticos. Falta `semear-e2e` na CLI (junto do front).
+  Faltam: explicador (REQ-012, 013, 037, 045, 038), Alembic, front, evals com modelos reais, deploy.
 
 ## Pendências
 - Testes de memória e fork bomb rodando no CI em Linux (D-23): confirmar que não ficam `skipped`.
