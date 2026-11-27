@@ -18,6 +18,10 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - PR 9 (`feat/api-loop-agente`): `app/agent/loop.py` (REQ-019 a 023, 025, 028, 029), `app/agent/provedores.py` (Gemini e Groq
   reais, ainda não exercitados com chave), `app/config.py` (`carregar_provedor`) e `app/cli.py` (`gerar_lote`; comando
   `python -m app.cli gerar ...`). `gerar_lote` não deduplica exercícios idênticos. Falta `semear-e2e` na CLI (junto do front).
+  PR 10 (`feat/cli-listar-modelos`): `python -m app.cli modelos` lista modelos do provedor (chave só no header, erro só com tipo e
+  HTTP); `GeminiProvider` remove o prefixo `models/` do `MODEL_NAME`; motivo de falha do provedor inclui o status HTTP.
+  Geração real validada (3/3 aprovados) com `gemini-3.1-flash-lite`. `gemini-2.5-flash` e `-flash-lite` dão 404 com a chave atual;
+  `gemini-flash-latest` deu 503. O `.env` do usuário deve usar um modelo que responda 200.
   Faltam: explicador (REQ-012, 013, 037, 045, 038), Alembic, front, evals com modelos reais, deploy.
 
 ## Pendências
