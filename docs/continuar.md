@@ -10,10 +10,11 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - PR 1 (docs, #4): SPEC, arquitetura, SECURITY.md e TRUST_PROXY. Aprovado.
 - PR 2 (#5): `app.errors`, `app.db`, `app.models`, handler global e `/health`. Aprovado.
 - PR 3 (#6): `GET /exercicios` e `device_id`. Aprovado.
-- PR 4 (`feat/api-respostas`): `POST /respostas` (`app/correcao.py`, `app/routes/respostas.py`): validação por tipo, pares de
-  indentação em `ordenar_linhas`, tentativa registrada, explicação armazenada da opção. Passam REQ-003, 007, 008, 010, 011, 032.
-  Faltam: `GET /progresso` (REQ-009, 015, 016, 018, 035; PR 5) e o agente explicador (REQ-012, 013; depois). Hoje, sem explicação
-  armazenada da opção, a resposta cai na explicação geral; o explicador será ligado quando existir.
+- PR 4 (#7): `POST /respostas`. Aprovado.
+- PR 5 (`feat/api-progresso`): `GET /progresso` (`app/routes/progresso.py`): total de acertos, taxa por tipo (4 tipos sempre
+  presentes) e sequência de dias em `America/Sao_Paulo`. Passam REQ-009, 015, 016, 018, 035. Corrigido o placeholder de
+  `postgresql://` no `.env.example`, que o teste do REQ-039 lia como segredo.
+  Faltam: explicador (REQ-012, 013, 045, 037), rate limit e CORS (REQ-040, 041), sandbox/validador/loop (REQ-019 a 030), Alembic.
 
 ## Pendências
 - Testes de memória e fork bomb rodando no CI em Linux (D-23): confirmar que não ficam `skipped`.
