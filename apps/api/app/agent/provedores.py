@@ -59,3 +59,46 @@ class Groq:
                                headers={"Authorization": f"Bearer {self._chave}"})
         r.raise_for_status()
         return extrair_json(r.json()["choices"][0]["message"]["content"])
+
+
+# ---------------------------------------------------------------- listagem de modelos (CLI)
+
+class ErroListagem(RuntimeError):
+    """Falha ao listar modelos. Carrega só o tipo do erro e o status HTTP: nunca URL, header ou corpo."""
+
+    def __init__(self, tipo: str, status: int | None = None):
+        self.tipo, self.status = tipo, status
+        super().__init__(f"{tipo}" + (f" (HTTP {status})" if status else ""))
+
+
+def _get(url: str, headers: dict, params: dict | None = None) -> dict:
+    try:
+        r = httpx.get(url, headers=headers, params=params, timeout=30.0)
+        r.raise_for_status()
+        return r.json()
+    except httpx.HTTPStatusError as e:
+        raise ErroListagem("HTTPStatusError", e.response.status_code) from None
+    except (httpx.HTTPError, ValueError) as e:
+        raise ErroListagem(type(e).__name__) from None
+
+
+def listar_modelos_gemini(chave: str) -> list[str]:
+    """Modelos que suportam generateContent. A chave vai só no header x-goog-api-key."""
+    nomes: list[str] = []
+    token = None
+    for _ in range(10):  # a API pagina; teto de páginas por segurança
+        params = {"pageSize": 1000, **({"pageToken": token} if token else {})}
+        corpo = _get("https://generativelanguage.googleapis.com/v1beta/models",
+                     {"x-goog-api-key": chave}, params)
+        for m in corpo.get("models", []):
+            if "generateContent" in m.get("supportedGenerationMethods", []):
+                nomes.append(str(m.get("name", "")).removeprefix("models/"))
+        token = corpo.get("nextPageToken")
+        if not token:
+            break
+    return sorted(n for n in nomes if n)
+
+
+def listar_modelos_groq(chave: str) -> list[str]:
+    corpo = _get("https://api.groq.com/openai/v1/models", {"Authorization": f"Bearer {chave}"})
+    return sorted(str(m.get("id", "")) for m in corpo.get("data", []) if m.get("id"))

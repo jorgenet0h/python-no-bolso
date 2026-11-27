@@ -38,6 +38,23 @@ def gerar_lote(tipo: str, nivel: str, tema: str, minimo: int, provedor, executor
     return {"estoque": _estoque(tipo, nivel, tema), "execucoes": execucoes, "aprovados": aprovados}
 
 
+def _modelos() -> int:
+    """Lista os modelos do provedor. Em falha mostra só o tipo do erro e o status HTTP."""
+    from app.agent.provedores import ErroListagem
+    from app.config import ConfiguracaoInvalida, listar_modelos
+
+    try:
+        nomes = listar_modelos()
+    except ConfiguracaoInvalida as e:
+        print(f"configuração inválida: {e}", file=sys.stderr)
+        return 2
+    except ErroListagem as e:
+        print(f"falha ao listar modelos: {e}", file=sys.stderr)
+        return 1
+    print("\n".join(nomes))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     from app.config import ConfiguracaoInvalida, carregar_provedor
 
@@ -48,7 +65,10 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--nivel", required=True)
     g.add_argument("--tema", required=True)
     g.add_argument("--minimo", type=int, required=True)
+    sub.add_parser("modelos", help="lista os modelos do provedor configurado")
     args = p.parse_args(argv)
+    if args.comando == "modelos":
+        return _modelos()
     try:
         provedor = carregar_provedor()
     except ConfiguracaoInvalida as e:

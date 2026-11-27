@@ -28,3 +28,18 @@ def carregar_provedor():
     if not chave:
         raise ConfiguracaoInvalida(f"{variavel_chave} não definida")
     return classe(modelo, chave)
+
+
+def listar_modelos() -> list[str]:
+    """Modelos do provedor de MODEL_PROVIDER (não exige MODEL_NAME). Só para a CLI."""
+    from app.agent import provedores
+
+    nome = (os.environ.get("MODEL_PROVIDER") or "").strip().lower()
+    if nome not in PROVEDORES:
+        raise ConfiguracaoInvalida(f"MODEL_PROVIDER deve ser um de: {', '.join(PROVEDORES)}")
+    variavel = PROVEDORES[nome][1]
+    chave = os.environ.get(variavel)
+    if not chave:
+        raise ConfiguracaoInvalida(f"{variavel} não definida")
+    listar = {"gemini": provedores.listar_modelos_gemini, "groq": provedores.listar_modelos_groq}
+    return listar[nome](chave)
