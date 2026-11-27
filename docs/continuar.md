@@ -13,10 +13,12 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - PR 4 (#7): `POST /respostas`. Aprovado.
 - PR 5 (#8): `GET /progresso`. Aprovado.
 - PR 6 (#9): rate limit e CORS. Aprovado.
-- PR 7 (`feat/api-sandbox`): `app/sandbox.py` (REQ-027): AST + lista de permissão, processo filho `-I` com ambiente vazio,
-  timeout com kill do grupo, teto de saída, rlimits aplicados pelo filho em Linux. No Windows passam 22 e 2 ficam pulados; no CI Linux passam os 24.
-  Memória e fork bomb passaram no CI em Linux (ubuntu-latest) no PR #10, sem skip.
-  Faltam: validador (REQ-025, 026, 030), loop/CLI (REQ-019 a 024, 028, 029), explicador (REQ-012, 013, 037, 045), Alembic, front.
+- PR 7 (#10): sandbox (REQ-027), confirmado no CI Linux. Aprovado.
+- PR 8 (`feat/api-validador`): `app/validador.py` (REQ-025, 026, 030): schema (com `jsonschema`, cópia do
+  `evals/exercicio.schema.json`; se um mudar, mudar o outro), execução independente por tipo, unicidade de ordem+indentação em
+  `ordenar_linhas`, `achar_bug` com bug divergente da correção. Conferido com o sandbox real nos 4 tipos.
+  REQ-025, 028 e 029 ainda dependem do loop (PR 9).
+  Faltam: loop/CLI (REQ-019 a 024, 028, 029), explicador (REQ-012, 013, 037, 045, 038), Alembic, front.
 
 ## Pendências
 - Testes de memória e fork bomb rodando no CI em Linux (D-23): confirmar que não ficam `skipped`.
