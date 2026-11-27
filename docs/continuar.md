@@ -9,9 +9,11 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - Decisões do contrato em `docs/decisoes-contrato.md` (vetos do usuário: D-06, D-12, D-14, D-17, D-23; D-11 e D-24 mantidas).
 - PR 1 (docs, #4): SPEC, arquitetura, SECURITY.md e TRUST_PROXY. Aprovado.
 - PR 2 (#5): `app.errors`, `app.db`, `app.models`, handler global e `/health`. Aprovado.
-- PR 3 (`feat/api-exercicios-device`): `GET /exercicios` (filtros por enum, priorização, sem gabarito) e dependência `device_id`
-  (`app/deps.py`). Passam REQ-001, 002, 004 e 006. REQ-003, 018 e 032/035 fecham com `POST /respostas` e `GET /progresso`.
-  Próximo: `POST /respostas` (REQ-007 a 011) e `GET /progresso` (REQ-015, 016, 018).
+- PR 3 (#6): `GET /exercicios` e `device_id`. Aprovado.
+- PR 4 (`feat/api-respostas`): `POST /respostas` (`app/correcao.py`, `app/routes/respostas.py`): validação por tipo, pares de
+  indentação em `ordenar_linhas`, tentativa registrada, explicação armazenada da opção. Passam REQ-003, 007, 008, 010, 011, 032.
+  Faltam: `GET /progresso` (REQ-009, 015, 016, 018, 035; PR 5) e o agente explicador (REQ-012, 013; depois). Hoje, sem explicação
+  armazenada da opção, a resposta cai na explicação geral; o explicador será ligado quando existir.
 
 ## Pendências
 - Testes de memória e fork bomb rodando no CI em Linux (D-23): confirmar que não ficam `skipped`.
