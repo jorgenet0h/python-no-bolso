@@ -7,12 +7,10 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - Testes escritos: 44 REQ mais o REQ-045 proposto. Já mesclados na branch atual (`tests/suite` é ancestral dela).
 - Nenhuma funcionalidade implementada; as falhas de categoria A são esperadas (ver `docs/reviews/estado-inicial-testes.md`).
 - Decisões do contrato em `docs/decisoes-contrato.md` (vetos do usuário: D-06, D-12, D-14, D-17, D-23; D-11 e D-24 mantidas).
-- PR de documentação do SPEC **ainda pendente**: aplicar o `docs/spec-gaps.md` no SPEC.md (níveis, temas, REQ-044,
-  REQ-035, REQ-032, `codigo_corrigido`, pasta do front, REQ-045) e registrar as decisões em `docs/arquitetura.md`.
+- PR 1 (docs, branch `docs/aplicar-decisoes-spec`): SPEC.md e `docs/arquitetura.md` atualizados com as decisões; SECURITY.md e TRUST_PROXY
+  documentados. Aguardando aprovação. Próximo: implementação por grupo de requisitos (base da API, depois correção, etc.).
 
 ## Pendências
-- SECURITY.md.
-- `TRUST_PROXY` no `.env.example` (feito) e no README.
 - Testes de memória e fork bomb rodando no CI em Linux (D-23): confirmar que não ficam `skipped`.
 - Conferir o `package-lock.json` (dependências inesperadas).
 - Abrir os PRs na `main`; mínimo de 2 PRs por pessoa.
