@@ -13,12 +13,13 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app import models  # noqa: F401  (registra as tabelas)
 from app.db import get_session
 from app.errors import ErroDominio, Indisponivel, RespostaInvalida
-from app.routes import exercicios
+from app.routes import exercicios, respostas
 
 log = logging.getLogger("app")
 
 app = FastAPI(title="Python no Bolso API")
 app.include_router(exercicios.router)
+app.include_router(respostas.router)
 
 HEALTH_OK = {"status": "ok", "db": "ok"}
 HEALTH_DEGRADADO = {"status": "degraded", "db": "erro"}
