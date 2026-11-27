@@ -127,3 +127,21 @@ agente, conforme D-17):
 
 Observação sobre o REQ-037: o caminho REQ-045 recebe a resposta do usuário, que continua sendo só números;
 mesmo assim o agente fica sem tools (testado em `test_req_045_agente_recebe_exercicio_e_resposta_numerica...`).
+
+## 6. Regra implementada sem teste: o exercício deve ser o que foi pedido
+
+Para a sessão 2 escrever o teste. O PR 9 implementou, em `app/agent/loop.py`, uma regra que nenhum teste
+cobre hoje e que a SPEC ainda não diz.
+
+> **Regra:** se o exercício devolvido pelo modelo tem `tipo`, `nivel` ou `tema` diferente do pedido em
+> `gerar(tipo, nivel, tema, ...)`, ele é **rejeitado** (status `rejeitado`, motivo "tipo, nível ou tema
+> diferente do pedido"), mesmo que passe no schema e na execução. Nada é salvo.
+
+- **Por quê:** sem ela, pedir `prever_saida/iniciante/variaveis` e receber um `achar_bug/avancado/erros`
+  validado encheria o estoque do filtro errado e esvaziaria o do pedido, e `gerar_lote` nunca chegaria
+  ao mínimo.
+- **Teste sugerido:** provedor falso devolve um exercício válido de outro tipo (e, em casos separados, de
+  outro nível e de outro tema); esperar `status == "rejeitado"`, nenhum `Exercicio` salvo e um
+  `ExecucaoGeracao` com `motivo` preenchido.
+- **SPEC:** acrescentar ao REQ-029 (rejeição) ou ao REQ-021, a decidir; o PR que mudar o comportamento
+  da SPEC deve ser da sessão 1, com este item como base.
