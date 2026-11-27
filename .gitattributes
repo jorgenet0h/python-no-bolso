@@ -1,0 +1,3 @@
+# Scripts e hooks precisam de LF para rodar em Linux/macOS
+*.sh text eol=lf
+.husky/* text eol=lf

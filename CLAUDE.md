@@ -24,19 +24,26 @@ afiada sem digitar muito código.
    {code, message}. Nunca vazar stack trace nem prompt ao cliente.
 8. Commits pequenos (Conventional Commits). Uma funcionalidade por PR. O corpo
    do PR explica o porquê em até 5 linhas, para eu conseguir defender na apresentação.
+9. Ao fim de cada PR ou sessão, atualizar docs/continuar.md.
+10. Em outro computador: rodar scripts/setup e depois /retomar.
 
 ## Estrutura
 apps/web, apps/api, docs/ (SPEC, arquitetura, reviews, disputas, requisitos),
 .claude/commands (prompts das sessões)
 
 ## Comandos
+- setup completo (Windows): `scripts\setup.ps1`; Linux/macOS: `scripts/setup.sh`. Diagnóstico (só leitura): `scripts\doctor.ps1` ou `scripts/doctor.sh`
+- sessão de testes isolada: `scripts\worktree-testes.ps1` ou `scripts/worktree-testes.sh` (cria `../python-no-bolso-testes` na branch `tests/suite`)
 - web dev: `npm install` na raiz, depois `npm run dev:web` (http://localhost:3000)
 - web build/lint: `npm run build:web`, `npm run lint:web`
-- api setup: `cd apps/api && python -m venv .venv && .venv/Scripts/python -m pip install -r requirements-dev.txt`
+- web testes: `npm run test:web` (Vitest); e2e: `npm run e2e:web` (Playwright, exige API e banco semeado de pé)
+- api setup: `cd apps/api && uv venv --python 3.12 .venv && uv pip install --python .venv/Scripts/python.exe -r requirements-dev.txt` (Linux/macOS: `.venv/bin/python`)
 - api dev: `cd apps/api && .venv/Scripts/python -m uvicorn app.main:app --reload`
 - api test/lint: `cd apps/api && .venv/Scripts/python -m pytest` e `.venv/Scripts/python -m ruff check .`
+- evals determinísticos: `python -m evals.runner --deterministico --saida evals/results/ci` (a partir da raiz, usando o python do venv); com modelos reais gasta cota (ver `evals/README.md`)
 - hooks: `npm install` na raiz ativa o Husky; o pre-commit roda lint do web e ruff da api. CI em `.github/workflows/ci.yml`
-- evals, migrate: a preencher nos PRs 13 e 5
+- slash commands (`.claude/commands/`): `/construir`, `/testar <REQs>`, `/revisar [branch]`, `/corrigir`, `/retomar`
+- migrate: a preencher no PR 5
 
 ## Pronto quando (disciplina)
 front + back + Postgres em produção; loop do agente explícito; evals rodando
