@@ -14,9 +14,8 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - PR 5 (#8): `GET /progresso`. Aprovado.
 - PR 6 (#9): rate limit e CORS. Aprovado.
 - PR 7 (`feat/api-sandbox`): `app/sandbox.py` (REQ-027): AST + lista de permissão, processo filho `-I` com ambiente vazio,
-  timeout com kill do grupo, teto de saída, rlimits aplicados pelo filho em Linux. No Windows passam 22 e 2 ficam pulados.
-  **Memória e fork bomb nunca rodaram em Linux**: o primeiro run real é o CI deste PR; se falharem lá, ajustar os rlimits
-  (em especial `RLIMIT_AS` com 64 MB, que pode ser pouco para a partida do Python).
+  timeout com kill do grupo, teto de saída, rlimits aplicados pelo filho em Linux. No Windows passam 22 e 2 ficam pulados; no CI Linux passam os 24.
+  Memória e fork bomb passaram no CI em Linux (ubuntu-latest) no PR #10, sem skip.
   Faltam: validador (REQ-025, 026, 030), loop/CLI (REQ-019 a 024, 028, 029), explicador (REQ-012, 013, 037, 045), Alembic, front.
 
 ## Pendências
