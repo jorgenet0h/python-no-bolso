@@ -1,16 +1,18 @@
 import logging
+import os
 import uuid
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app import models  # noqa: F401  (registra as tabelas)
+from app import models, ratelimit  # noqa: F401  (models registra as tabelas)
 from app.db import get_session
 from app.errors import ErroDominio, Indisponivel, RespostaInvalida
 from app.routes import exercicios, progresso, respostas
@@ -77,3 +79,19 @@ async def _erro_imprevisto(request: Request, exc: Exception):
 def health(sessao: Annotated[Session, Depends(get_session)]):
     sessao.execute(text("SELECT 1"))
     return HEALTH_OK
+
+
+@app.middleware("http")
+async def _limite_de_taxa(request: Request, call_next):
+    if ratelimit.excedeu(request):
+        return ratelimit.resposta_limite()
+    return await call_next(request)
+
+
+# Adicionado por último = camada mais externa: preflight e 429 também levam os headers de CORS (REQ-041).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[os.environ.get("CORS_ORIGIN", "http://localhost:3000").rstrip("/")],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["X-Device-Id", "Content-Type"],
+)
