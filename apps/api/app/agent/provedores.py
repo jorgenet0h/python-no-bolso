@@ -29,7 +29,8 @@ class Gemini:
     URL = "https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent"
 
     def __init__(self, modelo: str, chave: str, timeout_s: float = 60.0):
-        self.modelo, self._chave = modelo, chave
+        # a listagem devolve ids "models/x"; a URL já tem "models/", então o prefixo não pode repetir
+        self.modelo, self._chave = modelo.removeprefix("models/"), chave
         self._cliente = httpx.Client(timeout=timeout_s)
 
     def completar(self, mensagens: list[dict], tools: list[dict] | None = None) -> dict:

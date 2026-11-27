@@ -116,7 +116,8 @@ def gerar(tipo: str, nivel: str, tema: str, *, provedor, executor=None,
         try:
             resp = provedor.completar(mensagens, _tools_para_provedor())
         except Exception as e:  # noqa: BLE001 - rede, cota, HTTP: registra o tipo, nunca a mensagem
-            motivo = f"erro do provedor: {type(e).__name__}"
+            status_http = getattr(getattr(e, "response", None), "status_code", None)
+            motivo = f"erro do provedor: {type(e).__name__}" + (f" (HTTP {status_http})" if status_http else "")
             passo(n, t0, None, None, motivo)
             break
 
