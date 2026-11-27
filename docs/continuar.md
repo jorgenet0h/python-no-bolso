@@ -11,10 +11,11 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - PR 2 (#5): `app.errors`, `app.db`, `app.models`, handler global e `/health`. Aprovado.
 - PR 3 (#6): `GET /exercicios` e `device_id`. Aprovado.
 - PR 4 (#7): `POST /respostas`. Aprovado.
-- PR 5 (`feat/api-progresso`): `GET /progresso` (`app/routes/progresso.py`): total de acertos, taxa por tipo (4 tipos sempre
-  presentes) e sequência de dias em `America/Sao_Paulo`. Passam REQ-009, 015, 016, 018, 035. Corrigido o placeholder de
-  `postgresql://` no `.env.example`, que o teste do REQ-039 lia como segredo.
-  Faltam: explicador (REQ-012, 013, 045, 037), rate limit e CORS (REQ-040, 041), sandbox/validador/loop (REQ-019 a 030), Alembic.
+- PR 5 (#8): `GET /progresso`. Aprovado.
+- PR 6 (`feat/api-ratelimit-cors`): rate limit em memória (`app/ratelimit.py`, 120/min por aparelho, 300/min por IP, `/health` livre,
+  `TRUST_PROXY=1` lê a última entrada de `X-Forwarded-For`) e CORS só para `CORS_ORIGIN`. Passam REQ-040 e 041.
+  Limite é por processo: com mais de uma instância passa a valer por instância.
+  Faltam: explicador (REQ-012, 013, 045, 037), sandbox/validador/loop/CLI (REQ-019 a 030), Alembic, front.
 
 ## Pendências
 - Testes de memória e fork bomb rodando no CI em Linux (D-23): confirmar que não ficam `skipped`.
