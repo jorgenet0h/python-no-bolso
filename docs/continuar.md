@@ -5,12 +5,13 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 ## Estado atual (2026-11-26)
 - Branch de trabalho: `ci/lint-testes-hooks` (ainda sem PR aberto na `main`).
 - Testes escritos: 44 REQ mais o REQ-045 proposto. Já mesclados na branch atual (`tests/suite` é ancestral dela).
-- Nenhuma funcionalidade implementada; as falhas de categoria A são esperadas (ver `docs/reviews/estado-inicial-testes.md`).
+- Implementação em andamento por PRs; falhas de categoria A restantes são esperadas (ver `docs/reviews/estado-inicial-testes.md`).
 - Decisões do contrato em `docs/decisoes-contrato.md` (vetos do usuário: D-06, D-12, D-14, D-17, D-23; D-11 e D-24 mantidas).
 - PR 1 (docs, #4): SPEC, arquitetura, SECURITY.md e TRUST_PROXY. Aprovado.
-- PR 2 (`feat/api-base-erros-health`): `app.errors`, `app.db`, `app.models`, handler global e `/health` com banco.
-  Passam REQ-031, 033, 034 e 044. REQ-032 e 035 só fecham quando existirem `/exercicios`, `/respostas` e `/progresso`
-  (PRs seguintes). Próximo: exercícios + device_id (REQ-001 a 006, 014 a 018).
+- PR 2 (#5): `app.errors`, `app.db`, `app.models`, handler global e `/health`. Aprovado.
+- PR 3 (`feat/api-exercicios-device`): `GET /exercicios` (filtros por enum, priorização, sem gabarito) e dependência `device_id`
+  (`app/deps.py`). Passam REQ-001, 002, 004 e 006. REQ-003, 018 e 032/035 fecham com `POST /respostas` e `GET /progresso`.
+  Próximo: `POST /respostas` (REQ-007 a 011) e `GET /progresso` (REQ-015, 016, 018).
 
 ## Pendências
 - Testes de memória e fork bomb rodando no CI em Linux (D-23): confirmar que não ficam `skipped`.
