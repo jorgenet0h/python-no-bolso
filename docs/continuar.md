@@ -12,10 +12,11 @@ Estado curto. Atualize ao fim de cada PR ou sessão. Em outro computador: `scrip
 - PR 3 (#6): `GET /exercicios` e `device_id`. Aprovado.
 - PR 4 (#7): `POST /respostas`. Aprovado.
 - PR 5 (#8): `GET /progresso`. Aprovado.
-- PR 6 (`feat/api-ratelimit-cors`): rate limit em memória (`app/ratelimit.py`, 120/min por aparelho, 300/min por IP, `/health` livre,
-  `TRUST_PROXY=1` lê a última entrada de `X-Forwarded-For`) e CORS só para `CORS_ORIGIN`. Passam REQ-040 e 041.
-  Limite é por processo: com mais de uma instância passa a valer por instância.
-  Faltam: explicador (REQ-012, 013, 045, 037), sandbox/validador/loop/CLI (REQ-019 a 030), Alembic, front.
+- PR 6 (#9): rate limit e CORS. Aprovado.
+- PR 7 (`feat/api-sandbox`): `app/sandbox.py` (REQ-027): AST + lista de permissão, processo filho `-I` com ambiente vazio,
+  timeout com kill do grupo, teto de saída, rlimits aplicados pelo filho em Linux. No Windows passam 22 e 2 ficam pulados; no CI Linux passam os 24.
+  Memória e fork bomb passaram no CI em Linux (ubuntu-latest) no PR #10, sem skip.
+  Faltam: validador (REQ-025, 026, 030), loop/CLI (REQ-019 a 024, 028, 029), explicador (REQ-012, 013, 037, 045), Alembic, front.
 
 ## Pendências
 - Testes de memória e fork bomb rodando no CI em Linux (D-23): confirmar que não ficam `skipped`.
