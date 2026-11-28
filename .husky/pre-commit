@@ -1,0 +1,11 @@
+#!/bin/sh
+# Barra o commit se o lint falhar. O CI roda as mesmas checagens.
+set -e
+
+npm run lint:web --silent
+
+cd apps/api
+if [ -x .venv/Scripts/python ]; then PY=.venv/Scripts/python
+elif [ -x .venv/bin/python ]; then PY=.venv/bin/python
+else PY=python; fi
+"$PY" -m ruff check .

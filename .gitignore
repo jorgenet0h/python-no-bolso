@@ -9,3 +9,15 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 dist/
+
+# Playwright
+test-results/
+playwright-report/
+apps/web/e2e-results.xml
+
+# Evals: resultados são gerados sob demanda
+evals/results/*
+!evals/results/.gitkeep
+
+# Local do Claude Code (permissões da sessão de testes); .claude/commands/ é versionado
+.claude/settings.local.json

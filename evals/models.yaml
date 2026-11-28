@@ -1,0 +1,16 @@
+# Modelos avaliados pelos evals (REQ-042). Cada modelo roda a MESMA bateria de evals/casos.yaml.
+#
+# ATENÇÃO: este arquivo não existia; foi criado com 2 modelos de EXEMPLO (provedores gratuitos
+# citados em docs/arquitetura.md). Confirme os nomes de modelo e a disponibilidade da cota no
+# painel de cada provedor antes de rodar de verdade. A chave NUNCA vai aqui: fica na variável de
+# ambiente indicada em `chave_env` (CLAUDE.md, regra 4).
+modelos:
+  - nome: gemini-flash
+    provedor: gemini
+    modelo: gemini-2.0-flash
+    chave_env: GEMINI_API_KEY
+
+  - nome: groq-llama
+    provedor: groq
+    modelo: llama-3.3-70b-versatile
+    chave_env: GROQ_API_KEY
